@@ -12,4 +12,4 @@ binding = "IMAGES"
 bucket_name = "rise-and-steep-images"
 
 [vars]
-FRONTEND_ORIGIN = "https://riseandsteep.github.io"
+FRONTEND_ORIGIN = "*"
