@@ -1,0 +1,15 @@
+name = "rise-and-steep-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rise-and-steep-db"
+database_id = "7265f720-75d0-4693-acf7-24ca870ae1fe"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "rise-and-steep-images"
+
+[vars]
+FRONTEND_ORIGIN = "https://riseandsteep.github.io"
