@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Rise & Steep
 
 Herbal tea e-commerce store.
@@ -109,3 +110,23 @@ wrangler secret put ADMIN_SECRET
 | STRIPE_WEBHOOK_SECRET | `wrangler secret put` | From Stripe webhook settings |
 | ADMIN_SECRET | `wrangler secret put` | Your own password for admin panel |
 | FRONTEND_ORIGIN | wrangler.toml [vars] | Update to custom domain when ready |
+=======
+import { json, error } from "../cors.js";
+
+// GET /api/rooms
+export async function getRooms(env, origin) {
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT r.*, COUNT(p.id) as product_count
+       FROM rooms r
+       LEFT JOIN products p ON p.room_id = r.id AND p.in_stock = 1
+       GROUP BY r.id
+       ORDER BY r.sort_order ASC`
+    ).all();
+
+    return json(rows.results || [], 200, origin);
+  } catch (e) {
+    return error(`Database error: ${e.message}`, 500, origin);
+  }
+}
+>>>>>>> b3fc49d6502538722ae085d38d5dfc37d7c9827a
