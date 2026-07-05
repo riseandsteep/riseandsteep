@@ -135,8 +135,18 @@ function ProductCard({ product, onAdd }) {
   const price = (product.price_cents / 100).toFixed(2)
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   function handleAdd() { onAdd(product); setAdded(true); setTimeout(() => setAdded(false), 1800) }
+  const initials = product.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()
   return (
-    <div style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,padding:16,display:'flex',flexDirection:'column',gap:8}}>
+    <div style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+      {product.image_key ? (
+        <img src={product.image_key} alt={product.name} style={{width:'100%',height:160,objectFit:'cover'}}/>
+      ) : (
+        <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,borderBottom:`1px solid ${room.color}22`}}>
+          <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
+        </div>
+      )}
+      <div style={{padding:14,display:'flex',flexDirection:'column',gap:8}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
         <div style={{flex:1,paddingRight:8}}>
           {cat && <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:room.color,marginBottom:3}}>{cat.toUpperCase()}</div>}
@@ -149,6 +159,7 @@ function ProductCard({ product, onAdd }) {
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
         <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:15,fontWeight:700,color:'#18181B'}}>${price}</span>
         <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
+      </div>
       </div>
     </div>
   )
