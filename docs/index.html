@@ -4,34 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rise & Steep — Herbal Tea for Performance</title>
-  <meta name="description" content="Herbal blends built around measurable effects. Tell us your goal — we'll take you straight to what works." />
+  <meta name="description" content="Herbal blends built around measurable effects. Tell us your goal and we'll take you straight to what works." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #fff; font-family: 'Inter', sans-serif; color: #18181B; }
     #root { min-height: 100vh; }
-    .loading {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; font-family: 'Space Grotesk', sans-serif;
-      font-size: 18px; color: #A1A1AA; letter-spacing: -0.5px;
-    }
+    .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Space Grotesk', sans-serif; font-size: 18px; color: #A1A1AA; letter-spacing: -0.5px; }
   </style>
 </head>
 <body>
-  <div id="root">
-    <div class="loading">Rise & Steep</div>
-  </div>
+  <div id="root"><div class="loading">Rise & Steep</div></div>
 
-  <!-- API base URL — update this when Worker is deployed -->
-  <script>
-    window.RAS_API = "https://rise-and-steep-api.riseandsteep.workers.dev";
-  </script>
+  <script>window.RAS_API = "https://rise-and-steep-api.riseandsteep.workers.dev";</script>
 
-  <!-- React via CDN for prototype phase (swap for Vite build in production) -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script type="text/babel" src="assets/main.jsx"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script type="text/babel" src="assets/main.jsx" data-presets="env,react"></script>
 </body>
 </html>
