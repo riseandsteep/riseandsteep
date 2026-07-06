@@ -130,16 +130,29 @@ function EffectBars({ product, color }) {
 
 function ProductCard({ product, onAdd }) {
   const [added, setAdded] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const price = (product.price_cents / 100).toFixed(2)
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   const initials = product.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()
+  const hasImage = !!product.image_key && !imgError
   function handleAdd() { onAdd(product); setAdded(true); setTimeout(() => setAdded(false), 1800) }
   return (
     <div style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-      <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0}}>
-        <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
-        <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
+      <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0,position:'relative',overflow:'hidden'}}>
+        {hasImage ? (
+          <img
+            src={product.image_key}
+            alt={product.name}
+            onError={() => setImgError(true)}
+            style={{width:'100%',height:'100%',objectFit:'cover'}}
+          />
+        ) : (
+          <>
+            <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
+            <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
+          </>
+        )}
       </div>
       <div style={{padding:14,display:'flex',flexDirection:'column',gap:8,flex:1}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
@@ -425,7 +438,7 @@ export default function App() {
           {categories.map(cat => <button key={cat} onClick={()=>{setActiveCat(cat);setSearch('');setShowCount(24)}} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,cursor:'pointer',border:`1px solid ${activeCat===cat?'#18181B':'#E4E4E7'}`,background:activeCat===cat?'#18181B':'transparent',color:activeCat===cat?'#fff':'#52525B',transition:'all 0.15s'}}>{cat}</button>)}
         </div>
         <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA',marginBottom:16}}>
-          {filtered.length} product{filtered.length!==1?'s':''}{search?` for "${search}"`:''} 
+          {filtered.length} product{filtered.length!==1?'s':''}{search?` for "${search}"`:''}
         </div>
         {filtered.length === 0
           ? <div style={{textAlign:'center',padding:'60px 0',fontFamily:'Inter, sans-serif',fontSize:15,color:'#A1A1AA'}}>No products found.</div>
