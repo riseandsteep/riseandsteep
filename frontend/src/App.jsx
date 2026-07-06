@@ -366,7 +366,7 @@ export default function App() {
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
-        <div style={{background:'#18181B',borderRadius:8,padding:'4px 12px',display:'inline-flex',alignItems:'center',cursor:'pointer'}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>
+        <div style={{display:'none',display:'inline-flex',alignItems:'center',cursor:'pointer'}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>
           <img src="logo.png" alt="Rise & Steep" style={{height:30,width:'auto'}}/>
         </div>
         <input type="text" value={search} onChange={e=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}}
