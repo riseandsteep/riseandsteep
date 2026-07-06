@@ -365,7 +365,7 @@ export default function App() {
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
-        <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer'}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}/>
+        <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}/>
         <input type="text" value={search} onChange={e=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}}
           placeholder="Search 456+ herbs, teas, mushrooms..."
           style={{flex:1,maxWidth:320,padding:'8px 14px',borderRadius:999,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B',background:'#F9FAFB'}}
