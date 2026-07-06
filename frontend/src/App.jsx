@@ -57,7 +57,6 @@ function GoalWheel({ active, onSelect }) {
   const [hov, setHov] = useState(null)
   const CX=190, CY=190, OR=162, IR=84, GAP=3, seg=60
   const display = ROOMS.find(r => r.id === hov) || ROOMS.find(r => r.id === active) || null
-
   return (
     <svg width="380" height="380" viewBox="0 0 380 380" style={{display:'block',overflow:'visible'}}>
       {ROOMS.map((room, i) => {
@@ -134,28 +133,28 @@ function ProductCard({ product, onAdd }) {
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const price = (product.price_cents / 100).toFixed(2)
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
-  function handleAdd() { onAdd(product); setAdded(true); setTimeout(() => setAdded(false), 1800) }
   const initials = product.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()
+  function handleAdd() { onAdd(product); setAdded(true); setTimeout(() => setAdded(false), 1800) }
   return (
     <div style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-      <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,borderBottom:`1px solid ${room.color}22`,flexShrink:0}}>
+      <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0}}>
         <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
         <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
       </div>
-      <div style={{padding:14,display:'flex',flexDirection:'column',gap:8}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-        <div style={{flex:1,paddingRight:8}}>
-          {cat && <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:room.color,marginBottom:3}}>{cat.toUpperCase()}</div>}
-          <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:15,color:'#18181B',lineHeight:1.2}}>{product.name}</div>
+      <div style={{padding:14,display:'flex',flexDirection:'column',gap:8,flex:1}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+          <div style={{flex:1,paddingRight:8}}>
+            {cat && <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:room.color,marginBottom:3}}>{cat.toUpperCase()}</div>}
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:15,color:'#18181B',lineHeight:1.2}}>{product.name}</div>
+          </div>
+          <EffectBars product={product} color={room.accent}/>
         </div>
-        <EffectBars product={product} color={room.accent}/>
-      </div>
-      <Stars name={product.name} color={room.accent}/>
-      <p style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#52525B',lineHeight:1.5,margin:0}}>{product.blurb}</p>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
-        <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:15,fontWeight:700,color:'#18181B'}}>${price}</span>
-        <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
-      </div>
+        <Stars name={product.name} color={room.accent}/>
+        <p style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#52525B',lineHeight:1.5,margin:0}}>{product.blurb}</p>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:'auto',paddingTop:4}}>
+          <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:15,fontWeight:700,color:'#18181B'}}>${price}</span>
+          <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
+        </div>
       </div>
     </div>
   )
@@ -167,7 +166,7 @@ function CartDrawer({ cart, onClose, onRemove, onQty }) {
     <div style={{position:'absolute',top:0,right:0,width:340,background:'#fff',borderLeft:'1px solid #E4E4E7',minHeight:'100%',padding:24,zIndex:40,boxSizing:'border-box'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
         <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:'#18181B'}}>Your cart</div>
-        <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,color:'#A1A1AA',cursor:'pointer'}}>×</button>
+        <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,color:'#A1A1AA',cursor:'pointer'}}>x</button>
       </div>
       {cart.length === 0 ? <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>Nothing added yet.</p> : <>
         {cart.map(item => (
@@ -176,14 +175,14 @@ function CartDrawer({ cart, onClose, onRemove, onQty }) {
               <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:600,fontSize:13,color:'#18181B'}}>{item.name}</div>
               <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',marginTop:3}}>${(item.price_cents/100).toFixed(2)} each</div>
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                <button onClick={() => onQty(item.id,-1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>−</button>
+                <button onClick={()=>onQty(item.id,-1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>-</button>
                 <span style={{fontFamily:'Inter, sans-serif',fontSize:13}}>{item.qty}</span>
-                <button onClick={() => onQty(item.id,1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>+</button>
+                <button onClick={()=>onQty(item.id,1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>+</button>
               </div>
             </div>
             <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',justifyContent:'space-between'}}>
               <span style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:14}}>${((item.price_cents/100)*item.qty).toFixed(2)}</span>
-              <button onClick={() => onRemove(item.id)} style={{background:'none',border:'none',fontSize:11,color:'#A1A1AA',cursor:'pointer'}}>Remove</button>
+              <button onClick={()=>onRemove(item.id)} style={{background:'none',border:'none',fontSize:11,color:'#A1A1AA',cursor:'pointer'}}>Remove</button>
             </div>
           </div>
         ))}
@@ -191,7 +190,7 @@ function CartDrawer({ cart, onClose, onRemove, onQty }) {
           <div style={{display:'flex',justifyContent:'space-between',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:16,color:'#18181B',marginBottom:12}}>
             <span>Subtotal</span><span>${total.toFixed(2)}</span>
           </div>
-          <button style={{width:'100%',padding:13,borderRadius:999,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>Checkout — coming soon</button>
+          <button style={{width:'100%',padding:13,borderRadius:999,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>Checkout - coming soon</button>
         </div>
       </>}
     </div>
@@ -238,7 +237,7 @@ Timing: ${prefs.timing||'any'}`}]})
           <div style={{flex:'1 1 380px'}}>
             {step==='intake' && (
               <div style={{background:'#27272A',borderRadius:12,padding:24}}>
-                <textarea value={symptoms} onChange={e=>setSymptoms(e.target.value)} placeholder="e.g. I crash every afternoon, can't focus, and wake up tired even after 8 hours..." style={{width:'100%',minHeight:90,padding:'10px 12px',borderRadius:8,border:'1px solid #3F3F46',background:'#18181B',color:'#F4F4F5',fontSize:14,lineHeight:1.6,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit'}}/>
+                <textarea value={symptoms} onChange={e=>setSymptoms(e.target.value)} placeholder="e.g. I crash every afternoon, cant focus, and wake up tired even after 8 hours..." style={{width:'100%',minHeight:90,padding:'10px 12px',borderRadius:8,border:'1px solid #3F3F46',background:'#18181B',color:'#F4F4F5',fontSize:14,lineHeight:1.6,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit'}}/>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,margin:'12px 0'}}>
                   <select value={prefs.caffeine} onChange={e=>setPrefs(p=>({...p,caffeine:e.target.value}))} style={{padding:'7px 10px',borderRadius:8,border:'1px solid #3F3F46',background:'#18181B',color:'#F4F4F5',fontSize:12}}>
                     <option value="none">Caffeine-free</option>
@@ -288,7 +287,7 @@ Timing: ${prefs.timing||'any'}`}]})
                       <div key={i} style={{display:'flex',gap:8,marginBottom:i<blend.herbs.length-1?8:0}}>
                         <div style={{width:6,height:6,borderRadius:'50%',background:room.color,flexShrink:0,marginTop:4}}/>
                         <div>
-                          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:13,fontWeight:600,color:'#18181B'}}>{h.name} <span style={{fontWeight:400,color:'#A1A1AA'}}>— {h.amount}</span></div>
+                          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:13,fontWeight:600,color:'#18181B'}}>{h.name} <span style={{fontWeight:400,color:'#A1A1AA'}}>- {h.amount}</span></div>
                           <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#71717A',lineHeight:1.4,marginTop:2}}>{h.reason}</div>
                         </div>
                       </div>
@@ -360,15 +359,13 @@ export default function App() {
     setCartOpen(true)
   }
 
-  if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',fontFamily:'Space Grotesk, sans-serif',fontSize:18,color:'#A1A1AA'}}>Loading Rise & Steep...</div>
+  if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',fontFamily:'Space Grotesk, sans-serif',fontSize:18,color:'#A1A1AA'}}>Loading Rise and Steep...</div>
 
   return (
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
-        <div style={{display:'flex',alignItems:'center',cursor:'pointer'}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}>
-          <img src="logo.png" alt="Rise & Steep" style={{height:30,width:'auto'}}/>
-        </div>
+        <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer'}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}/>
         <input type="text" value={search} onChange={e=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}}
           placeholder="Search 456+ herbs, teas, mushrooms..."
           style={{flex:1,maxWidth:320,padding:'8px 14px',borderRadius:999,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B',background:'#F9FAFB'}}
@@ -387,7 +384,7 @@ export default function App() {
         <div style={{flex:'1 1 360px',minWidth:300}}>
           <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2.5,color:'#A1A1AA',marginBottom:18}}>HERBAL TEA FOR PERFORMANCE</div>
           <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(42px,5.5vw,68px)',color:'#18181B',lineHeight:0.95,margin:0,letterSpacing:'-2px'}}>Steep toward<br/><span style={{color:'#A1A1AA'}}>optimal.</span></h1>
-          <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel — or search and browse 456+ herbs, teas, and botanicals.</p>
+          <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel or search and browse 456+ herbs, teas, and botanicals.</p>
           <div style={{display:'flex',gap:8,marginTop:20,flexWrap:'wrap'}}>
             {['No seed oils','No fillers','100% herbal','Lab-sourced'].map(tag => <div key={tag} style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#71717A',border:'1px solid #E4E4E7',borderRadius:999,padding:'5px 12px'}}>{tag}</div>)}
           </div>
@@ -398,13 +395,13 @@ export default function App() {
         <div style={{flex:'0 0 auto',display:'flex',flexDirection:'column',alignItems:'center'}}>
           <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',letterSpacing:1.5,marginBottom:10,textAlign:'center'}}>SELECT YOUR GOAL</div>
           <GoalWheel active={activeRoom} onSelect={selectRoom}/>
-          {activeRoom && <button onClick={()=>setActiveRoom(null)} style={{marginTop:10,background:'none',border:'none',fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',cursor:'pointer'}}>Clear selection ×</button>}
+          {activeRoom && <button onClick={()=>setActiveRoom(null)} style={{marginTop:10,background:'none',border:'none',fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',cursor:'pointer'}}>Clear selection x</button>}
         </div>
       </section>
 
       <div style={{borderTop:'1px solid #E4E4E7',borderBottom:'1px solid #E4E4E7',padding:'14px 24px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexWrap:'wrap'}}>
-          {[['456+','Herbs & Botanicals'],['6','Wellness Goals'],['100%','Certified Organic'],['0','Fillers']].map(([num,label],i) => (
+          {[['456+','Herbs and Botanicals'],['6','Wellness Goals'],['100%','Certified Organic'],['0','Fillers']].map(([num,label],i) => (
             <div key={i} style={{flex:'1 1 140px',padding:'0 20px',borderRight:i<3?'1px solid #E4E4E7':'none'}}>
               <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:20,color:'#18181B'}}>{num}</div>
               <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',marginTop:2}}>{label}</div>
@@ -452,7 +449,7 @@ export default function App() {
       <div style={{background:'#F9FAFB',borderTop:'1px solid #E4E4E7',padding:'48px 24px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:48,flexWrap:'wrap',alignItems:'center'}}>
           <div style={{flex:'1 1 400px'}}>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE & STEEP</div>
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE AND STEEP</div>
             <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(26px,4vw,40px)',color:'#18181B',lineHeight:1.05,margin:0,letterSpacing:'-0.5px'}}>Every blend starts with a question: what do you actually need today?</h2>
           </div>
           <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>We source whole herbs in bulk, blend them around measurable effect profiles, and package them without fillers or fluff. No wellness theater. Just what works.</p>
@@ -461,10 +458,8 @@ export default function App() {
 
       <footer style={{borderTop:'1px solid #E4E4E7',padding:'24px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
-          <div style={{display:'flex'}}>
-            <img src="logo.png" alt="Rise & Steep" style={{height:24,width:'auto'}}/>
-          </div>
-          <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com · Herbal tea for performance</div>
+          <img src="logo.png" alt="Rise and Steep" style={{height:32,width:'auto'}}/>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com - Herbal tea for performance</div>
         </div>
       </footer>
 
@@ -478,5 +473,3 @@ export default function App() {
     </div>
   )
 }
-
-
