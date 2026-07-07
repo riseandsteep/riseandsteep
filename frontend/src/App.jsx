@@ -33,7 +33,7 @@ Use 3-6 herbs, parts system, price $18-38.`
 
 function getPageFromHash() {
   const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
-  if (h === 'about' || h === 'contact' || h === 'success') return h
+  if (h === 'about' || h === 'contact' || h === 'success' || h === 'admin') return h
   return 'home'
 }
 
@@ -542,6 +542,156 @@ function SuccessPage({ onOrderConfirmed }) {
   )
 }
 
+const ORDER_STATUSES = ['pending', 'paid', 'shipped', 'cancelled']
+
+function OrderRow({ order, productMap }) {
+  const [status, setStatus] = useState(order.status)
+  const [notes, setNotes] = useState(order.notes || '')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  let items = []
+  try { items = JSON.parse(order.items_json || '[]') } catch {}
+
+  let shipping = null
+  try { shipping = order.shipping_json ? JSON.parse(order.shipping_json) : null } catch {}
+
+  async function save() {
+    setSaving(true)
+    const secret = sessionStorage.getItem('rs_admin_secret')
+    try {
+      await fetch(`${API}/api/admin/orders/${order.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${secret}` },
+        body: JSON.stringify({ status, notes }),
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1500)
+    } catch {}
+    setSaving(false)
+  }
+
+  const statusColors = { pending:'#D97706', paid:'#2563EB', shipped:'#16A34A', cancelled:'#DC2626' }
+
+  return (
+    <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:20,marginBottom:14}}>
+      <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8,marginBottom:12}}>
+        <div>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:15,color:'#18181B'}}>{order.id}</div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>{order.created_at}</div>
+        </div>
+        <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:1,color:'#fff',background:statusColors[order.status]||'#71717A',padding:'4px 10px',borderRadius:999,height:'fit-content'}}>{order.status.toUpperCase()}</div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:14,fontFamily:'Inter, sans-serif',fontSize:13}}>
+        <div>
+          <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:'#A1A1AA',marginBottom:4}}>CUSTOMER</div>
+          <div style={{color:'#18181B'}}>{order.name || '(no name)'}</div>
+          <div style={{color:'#52525B'}}>{order.email || '(no email)'}</div>
+        </div>
+        <div>
+          <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:'#A1A1AA',marginBottom:4}}>SHIP TO</div>
+          {shipping ? (
+            <div style={{color:'#18181B',lineHeight:1.5}}>
+              {shipping.line1}{shipping.line2 ? `, ${shipping.line2}` : ''}<br/>
+              {shipping.city}, {shipping.state} {shipping.postal_code}<br/>
+              {shipping.country}
+            </div>
+          ) : <div style={{color:'#A1A1AA'}}>No address on file</div>}
+        </div>
+      </div>
+
+      <div style={{background:'#F9FAFB',borderRadius:8,padding:12,marginBottom:14,fontFamily:'Inter, sans-serif',fontSize:13}}>
+        <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:'#A1A1AA',marginBottom:6}}>ITEMS</div>
+        {items.map((it, i) => (
+          <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'3px 0'}}>
+            <span>{productMap[it.product_id] || it.product_id} — {it.oz >= 16 ? `${it.oz/16}lb` : `${it.oz || 2}oz`} × {it.qty}</span>
+          </div>
+        ))}
+        <div style={{borderTop:'1px solid #E4E4E7',marginTop:6,paddingTop:6,display:'flex',justifyContent:'space-between',fontWeight:700}}>
+          <span>Total</span><span>${(order.total_cents/100).toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
+        <select value={status} onChange={e=>setStatus(e.target.value)} style={{padding:'8px 10px',borderRadius:8,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13}}>
+          {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Tracking number / notes"
+          style={{flex:1,minWidth:180,padding:'8px 10px',borderRadius:8,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13}}/>
+        <button onClick={save} disabled={saving} style={{padding:'8px 18px',borderRadius:8,border:'none',background:saved?'#16A34A':'#18181B',color:'#fff',fontFamily:'Inter, sans-serif',fontSize:13,fontWeight:600,cursor:'pointer'}}>{saving?'Saving...':saved?'Saved!':'Save'}</button>
+      </div>
+    </div>
+  )
+}
+
+function AdminPage() {
+  const [secret, setSecret] = useState(sessionStorage.getItem('rs_admin_secret') || '')
+  const [input, setInput] = useState('')
+  const [orders, setOrders] = useState(null)
+  const [productMap, setProductMap] = useState({})
+  const [authError, setAuthError] = useState(false)
+  const [filter, setFilter] = useState('all')
+
+  async function loadOrders(s) {
+    setAuthError(false)
+    try {
+      const r = await fetch(`${API}/api/admin/orders`, { headers: { Authorization: `Bearer ${s}` } })
+      if (r.status === 401) { setAuthError(true); sessionStorage.removeItem('rs_admin_secret'); setSecret(''); return }
+      const data = await r.json()
+      setOrders(data.orders || [])
+    } catch {}
+  }
+
+  useEffect(() => {
+    if (secret) loadOrders(secret)
+    fetchAllProducts().then(prods => {
+      const map = {}
+      prods.forEach(p => { map[p.id] = p.name })
+      setProductMap(map)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secret])
+
+  function handleLogin(e) {
+    e.preventDefault()
+    sessionStorage.setItem('rs_admin_secret', input)
+    setSecret(input)
+  }
+
+  if (!secret) {
+    return (
+      <div style={{maxWidth:360,margin:'0 auto',padding:'100px 24px'}}>
+        <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:20,color:'#18181B',marginBottom:16}}>Admin login</div>
+        <form onSubmit={handleLogin}>
+          <input type="password" value={input} onChange={e=>setInput(e.target.value)} placeholder="Admin secret"
+            style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:14,boxSizing:'border-box',marginBottom:12}}/>
+          <button type="submit" style={{width:'100%',padding:12,borderRadius:8,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>Log in</button>
+        </form>
+        {authError && <div style={{color:'#DC2626',fontFamily:'Inter, sans-serif',fontSize:13,marginTop:10}}>Incorrect secret.</div>}
+      </div>
+    )
+  }
+
+  const filtered = orders ? (filter === 'all' ? orders : orders.filter(o => o.status === filter)) : null
+
+  return (
+    <div style={{maxWidth:900,margin:'0 auto',padding:'40px 24px 80px'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24,flexWrap:'wrap',gap:10}}>
+        <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:22,color:'#18181B'}}>Orders</div>
+        <div style={{display:'flex',gap:8}}>
+          {['all', ...ORDER_STATUSES].map(s => (
+            <button key={s} onClick={()=>setFilter(s)} style={{padding:'6px 14px',borderRadius:999,border:`1px solid ${filter===s?'#18181B':'#E4E4E7'}`,background:filter===s?'#18181B':'transparent',color:filter===s?'#fff':'#52525B',fontFamily:'Inter, sans-serif',fontSize:12,cursor:'pointer'}}>{s}</button>
+          ))}
+        </div>
+      </div>
+      {!orders && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>Loading orders...</div>}
+      {filtered && filtered.length === 0 && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>No orders found.</div>}
+      {filtered && filtered.map(o => <OrderRow key={o.id} order={o} productMap={productMap}/>)}
+    </div>
+  )
+}
+
 export default function App() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -662,6 +812,7 @@ export default function App() {
       {page === 'about' && <AboutPage/>}
       {page === 'contact' && <ContactPage/>}
       {page === 'success' && <SuccessPage onOrderConfirmed={()=>setCart([])}/>}
+      {page === 'admin' && <AdminPage/>}
 
       {page === 'home' && <>
         <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
