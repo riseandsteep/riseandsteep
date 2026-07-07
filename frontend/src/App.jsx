@@ -644,7 +644,7 @@ export default function App() {
               <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE AND STEEP</div>
               <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(26px,4vw,40px)',color:'#18181B',lineHeight:1.05,margin:0,letterSpacing:'-0.5px'}}>Every blend starts with a question: what do you actually need today?</h2>
             </div>
-            <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>We source whole herbs in bulk, blend them around measurable effect profiles, and package them without fillers or fluff. No wellness theater. Just what works.</p>
+            <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>Every blend is built around a specific goal, formulated with precise ratios instead of guesswork, and held to one standard: real ingredients, nothing added just to bulk out a bag. And if you already know what you are after, we carry hundreds of classic herbs and spices on their own too, sold straight and priced by the ounce. No wellness theater. Just what works.</p>
           </div>
         </div>
       </>}
