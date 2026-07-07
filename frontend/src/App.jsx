@@ -18,8 +18,6 @@ const SIZES = [
   { label:'1lb',  oz:16 },
 ]
 
-const FREE_SHIPPING_THRESHOLD_CENTS = 4500 // $45, must match worker/src/routes/orders.js
-
 const COMPANY = {
   addressLine1: '850 S Boulder Hwy, Ste 370',
   city: 'Henderson',
@@ -31,7 +29,7 @@ const COMPANY = {
 
 const BLEND_PROMPT = `You are the Rise & Steep master herbalist. Create a custom herbal tea blend. Respond ONLY with valid JSON:
 {"blend_name":"Name","tagline":"Short tagline","room":"energy|sleep|gut|immune|stress|detox","herbs":[{"name":"Herb","amount":"1 part","reason":"Why"}],"brewing":"Instructions","best_time":"Time","retail_price":24.00,"notes":"Note"}
-Use 3-6 herbs, parts system, price $18-38.`
+Use 3-6 herbs, parts system, price $18-38. Do not use the words "organic" or "certified organic" anywhere in your response, even in passing — describe quality using other language (e.g. "high-quality," "carefully sourced").`
 
 function getPageFromHash() {
   const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
@@ -208,15 +206,13 @@ function ProductCard({ product, onAdd, onOpen }) {
   )
 }
 
-function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
+function ProductModal({ product, onClose, onAdd }) {
   const [selectedOz, setSelectedOz] = useState(2)
   const [added, setAdded] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   const priceCents = priceForSize(product, selectedOz)
   const sizeLabel = SIZES.find(s => s.oz === selectedOz)?.label || `${selectedOz}oz`
-  const projectedTotal = cartTotalCents + priceCents
-  const remainingCents = FREE_SHIPPING_THRESHOLD_CENTS - projectedTotal
 
   function handleAdd() {
     onAdd(product, selectedOz, priceCents, sizeLabel)
@@ -254,12 +250,6 @@ function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
                 )
               })}
             </div>
-          </div>
-
-          <div style={{background:remainingCents<=0?'#F0FDF4':'#F9FAFB',border:`1px solid ${remainingCents<=0?'#BBF7D0':'#E4E4E7'}`,borderRadius:8,padding:'10px 12px',fontFamily:'Inter, sans-serif',fontSize:12,color:remainingCents<=0?'#15803D':'#52525B',textAlign:'center'}}>
-            {remainingCents <= 0
-              ? '🎉 This order qualifies for free US shipping!'
-              : `Add $${(remainingCents/100).toFixed(2)} more to unlock free US shipping`}
           </div>
 
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
@@ -338,21 +328,6 @@ function CartDrawer({ cart, onClose, onRemove, onQty, onCheckout, checkingOut })
         <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,color:'#A1A1AA',cursor:'pointer'}}>x</button>
       </div>
       {cart.length === 0 ? <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>Nothing added yet.</p> : <>
-        {(() => {
-          const totalCents = cart.reduce((s,i)=>s+i.price_cents*i.qty,0)
-          const remaining = FREE_SHIPPING_THRESHOLD_CENTS - totalCents
-          const pct = Math.min(100, (totalCents / FREE_SHIPPING_THRESHOLD_CENTS) * 100)
-          return (
-            <div style={{marginBottom:18}}>
-              <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:remaining<=0?'#16A34A':'#52525B',marginBottom:6}}>
-                {remaining <= 0 ? '🎉 You unlocked free US shipping!' : `Add $${(remaining/100).toFixed(2)} more for free US shipping`}
-              </div>
-              <div style={{height:6,borderRadius:999,background:'#F4F4F5',overflow:'hidden'}}>
-                <div style={{height:'100%',width:`${pct}%`,background:'#16A34A',borderRadius:999,transition:'width 0.3s'}}/>
-              </div>
-            </div>
-          )
-        })()}
         {cart.map(item => (
           <div key={item.cartId} style={{display:'flex',justifyContent:'space-between',borderBottom:'1px solid #F4F4F5',paddingBottom:14,marginBottom:14}}>
             <div>
@@ -510,7 +485,7 @@ function AboutPage() {
       <div style={{display:'flex',flexDirection:'column',gap:20,fontFamily:'Inter, sans-serif',fontSize:15,color:'#3F3F46',lineHeight:1.75}}>
         <p>Rise & Steep started with a simple frustration: most herbal tea is sold on vibes. Pretty packaging, vague promises, and not much else. We wanted something closer to how you'd approach training or nutrition — pick a goal, use the ingredients that actually support it, and skip the fluff.</p>
         <p>So that's what we built. Every blend on this site is organized around a specific outcome — energy, sleep, gut health, immunity, stress, or detox — and made from whole herbs sourced for quality, not just a nice label. No seed oils. No filler ingredients. Nothing added just to bulk out a bag.</p>
-        <p>We also carry hundreds of individual herbs, teas, and mushrooms on their own, for people who already know what they're looking for and just want the real thing — organic, lab-sourced, and priced by the ounce so you can buy exactly as much as you need.</p>
+        <p>We also carry hundreds of individual herbs, teas, and mushrooms on their own, for people who already know what they're looking for and just want the real thing — quality-sourced and priced by the ounce so you can buy exactly as much as you need.</p>
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))',gap:16,marginTop:40}}>
@@ -625,36 +600,8 @@ function ShippingPage() {
         <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B'}}>Processing time</h3>
         <p>Orders are typically packed and shipped within 1-3 business days. You'll receive an email with tracking information as soon as your order ships.</p>
 
-        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Where we ship</h3>
-        <p>We currently ship to the United States and Canada. Shipping cost is calculated automatically at checkout based on the total weight of your order.</p>
-
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(280px,1fr))',gap:16,marginTop:8}}>
-          <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:20}}>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:14,color:'#18181B',marginBottom:10}}>United States</div>
-            <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B',lineHeight:1.9}}>
-              Up to 4oz — $5.95<br/>
-              Up to 8oz — $7.95<br/>
-              Up to 1lb — $9.95<br/>
-              Up to 2lb — $12.95<br/>
-              Up to 3lb — $15.95<br/>
-              Over 3lb — $19.95<br/>
-              <b style={{color:'#16A34A'}}>Free on orders $45+</b>
-            </div>
-          </div>
-          <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:20}}>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:14,color:'#18181B',marginBottom:10}}>Canada</div>
-            <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B',lineHeight:1.9}}>
-              Up to 8oz — $24.95<br/>
-              Up to 1lb — $32.95<br/>
-              Up to 2lb — $44.95<br/>
-              Up to 3lb — $54.95<br/>
-              Over 3lb — $64.95
-            </div>
-          </div>
-        </div>
-
-        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Delivery estimates</h3>
-        <p>US orders typically arrive within 3-7 business days of shipping. Canada orders typically take 7-14 business days, and may be subject to customs processing and duties that are the customer's responsibility.</p>
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Shipping rates & delivery</h3>
+        <p>We ship via USPS and UPS within the United States. Exact shipping cost is calculated at checkout based on your order weight and destination. Most orders arrive within 3-7 business days of shipping.</p>
 
         <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Returns</h3>
         <p>Because our products are food items, we're unable to accept returns of opened products for hygiene and safety reasons. If your order arrives damaged, incorrect, or defective, contact us within 14 days of delivery at <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a> and we'll make it right with a replacement or refund.</p>
@@ -1031,10 +978,6 @@ export default function App() {
   return (
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
-      <div style={{background:'#18181B',color:'#F4F4F5',textAlign:'center',padding:'8px 16px',fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500}}>
-        🌿 Free US shipping on orders $45+
-      </div>
-
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
         <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>{window.location.hash=''; window.scrollTo({top:0,behavior:'smooth'})}}/>
         <input type="text" value={search} onChange={e=>{goHomeThen(()=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})})}}
@@ -1083,7 +1026,7 @@ export default function App() {
 
         <div style={{borderTop:'1px solid #E4E4E7',borderBottom:'1px solid #E4E4E7',padding:'14px 24px'}}>
           <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexWrap:'wrap'}}>
-            {[['456+','Herbs and Botanicals'],['6','Wellness Goals'],['100%','Certified Organic'],['0','Fillers']].map(([num,label],i) => (
+            {[['456+','Herbs and Botanicals'],['6','Wellness Goals'],['100%','Whole Herbal'],['0','Fillers']].map(([num,label],i) => (
               <div key={i} style={{flex:'1 1 140px',padding:'0 20px',borderRight:i<3?'1px solid #E4E4E7':'none'}}>
                 <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:20,color:'#18181B'}}>{num}</div>
                 <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',marginTop:2}}>{label}</div>
@@ -1179,7 +1122,7 @@ export default function App() {
       </>}
 
       {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart} cartTotalCents={cart.reduce((s,i)=>s+i.price_cents*i.qty,0)}/>
+        <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart}/>
       )}
 
       {showEmailPopup && page === 'home' && (
