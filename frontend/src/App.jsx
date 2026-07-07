@@ -262,6 +262,63 @@ function ProductModal({ product, onClose, onAdd }) {
   )
 }
 
+function EmailPopup({ onClose }) {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState('idle')
+
+  function dismiss() {
+    localStorage.setItem('rs_email_popup_seen', 'dismissed')
+    onClose()
+  }
+
+  async function submit(e) {
+    e.preventDefault()
+    if (!email.trim()) return
+    setStatus('loading')
+    try {
+      const r = await fetch(`${API}/api/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), source: 'popup' }),
+      })
+      if (r.ok) {
+        setStatus('done')
+        localStorage.setItem('rs_email_popup_seen', 'subscribed')
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div onClick={dismiss} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:70,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,maxWidth:420,width:'100%',padding:'36px 32px',position:'relative',textAlign:'center'}}>
+        <button onClick={dismiss} style={{position:'absolute',top:14,right:14,background:'none',border:'none',fontSize:18,color:'#A1A1AA',cursor:'pointer'}}>x</button>
+        {status !== 'done' ? (
+          <>
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B',marginBottom:8}}>Stay in the loop</div>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B',lineHeight:1.6,marginBottom:22}}>Get first access to new blends, restocks, and the occasional herbalist tip. No spam, unsubscribe anytime.</p>
+            <form onSubmit={submit} style={{display:'flex',flexDirection:'column',gap:10}}>
+              <input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"
+                style={{padding:'12px 14px',borderRadius:8,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:14,boxSizing:'border-box'}}/>
+              <button type="submit" disabled={status==='loading'} style={{padding:12,borderRadius:8,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>{status==='loading'?'Joining...':'Join the list'}</button>
+            </form>
+            {status==='error' && <div style={{color:'#DC2626',fontSize:12,marginTop:10,fontFamily:'Inter, sans-serif'}}>Something went wrong — please try again.</div>}
+          </>
+        ) : (
+          <>
+            <div style={{fontSize:36,marginBottom:10}}>✓</div>
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:20,fontWeight:700,color:'#18181B',marginBottom:8}}>You're on the list!</div>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B'}}>We'll be in touch with new blends and restocks.</p>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function CartDrawer({ cart, onClose, onRemove, onQty, onCheckout, checkingOut }) {
   const total = cart.reduce((s, i) => s + (i.price_cents / 100) * i.qty, 0)
   return (
@@ -704,6 +761,7 @@ export default function App() {
   const [showCount, setShowCount] = useState(24)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [page, setPage] = useState(getPageFromHash())
+  const [showEmailPopup, setShowEmailPopup] = useState(false)
   const shopRef = useRef(null)
   const blendRef = useRef(null)
 
@@ -718,6 +776,13 @@ export default function App() {
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  useEffect(() => {
+    const seen = localStorage.getItem('rs_email_popup_seen')
+    if (seen) return
+    const t = setTimeout(() => setShowEmailPopup(true), 8000)
+    return () => clearTimeout(t)
   }, [])
 
   const categories = useMemo(() => {
@@ -927,6 +992,10 @@ export default function App() {
 
       {selectedProduct && (
         <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart}/>
+      )}
+
+      {showEmailPopup && page === 'home' && (
+        <EmailPopup onClose={()=>setShowEmailPopup(false)}/>
       )}
     </div>
   )
