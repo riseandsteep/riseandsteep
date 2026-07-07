@@ -3,6 +3,7 @@ import { getProducts, getProduct } from "./routes/products.js";
 import { getRooms } from "./routes/rooms.js";
 import { createCheckout, getOrder } from "./routes/orders.js";
 import { handleWebhook } from "./routes/webhook.js";
+import { generateBlend } from "./routes/blend.js";
 import {
   adminListProducts, adminCreateProduct,
   adminUpdateProduct, adminDeleteProduct,
@@ -44,6 +45,11 @@ export default {
       return getProduct(productMatch[1], env, origin);
     }
 
+    // POST /api/blend
+    if (path === "/api/blend" && method === "POST") {
+      return generateBlend(request, env, origin);
+    }
+
     // POST /api/checkout
     if (path === "/api/checkout" && method === "POST") {
       return createCheckout(request, env, origin);
@@ -60,7 +66,7 @@ export default {
       return handleWebhook(request, env, origin);
     }
 
-    // ── Admin routes ───────────────────────────────────────────
+    // ── Admin routes ────────────────────────────────────────────
 
     if (path === "/api/admin/products" && method === "GET")  return adminListProducts(request, env, origin);
     if (path === "/api/admin/products" && method === "POST") return adminCreateProduct(request, env, origin);

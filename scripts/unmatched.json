@@ -1,0 +1,258 @@
+[
+  {
+    "id": "ras-black-pepper-organic",
+    "slug": "black-pepper-organic",
+    "name": "Black Pepper Organic",
+    "best_candidate": "Black Seed Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/525/images/4967/Black_Seed_Website__61560.1761777676.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-blue-lotus-flower",
+    "slug": "blue-lotus-flower",
+    "name": "Blue Lotus Flower",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.2
+  },
+  {
+    "id": "ras-borage-leaf",
+    "slug": "borage-leaf",
+    "name": "Borage Leaf",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-borage-seed",
+    "slug": "borage-seed",
+    "name": "Borage Seed",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-cardamom-seed-organic",
+    "slug": "cardamom-seed-organic",
+    "name": "Cardamom Seed Organic",
+    "best_candidate": "Anise Seed Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/491/images/4729/Anise_Seed_Overhead__84281.1769546138.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-centella-leaf-organic",
+    "slug": "centella-leaf-organic",
+    "name": "Centella Leaf Organic",
+    "best_candidate": "Alfalfa Leaf Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/478/images/4955/Alfalfa_Website__01278.1761776479.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-cornsilk-organic",
+    "slug": "cornsilk-organic",
+    "name": "Cornsilk Organic",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-cotton-root-bark",
+    "slug": "cotton-root-bark",
+    "name": "Cotton Root Bark",
+    "best_candidate": "Bayberry Root Bark",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/507/images/5268/Bayberry_Root_Bark__14896.1770838045.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-curcumin-95",
+    "slug": "curcumin-95",
+    "name": "Curcumin 95%",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-elder-flower-organic",
+    "slug": "elder-flower-organic",
+    "name": "Elder Flower Organic",
+    "best_candidate": "Elder Berries Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/640/images/5381/Elder_Berries__22048.1776112248.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-epazote",
+    "slug": "epazote",
+    "name": "Epazote",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-eyebright",
+    "slug": "eyebright",
+    "name": "Eyebright",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-frankincense-tears",
+    "slug": "frankincense-tears",
+    "name": "Frankincense Tears",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.25
+  },
+  {
+    "id": "ras-ginseng-root-siberian",
+    "slug": "ginseng-root-siberian",
+    "name": "Ginseng Root Siberian",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-green-tea-organic",
+    "slug": "green-tea-organic",
+    "name": "Green Tea Organic",
+    "best_candidate": "Peppercorn, Green Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/687/images/3929/Green_Peppercorn_Pile__46945.1769557709.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-haritaki",
+    "slug": "haritaki",
+    "name": "Haritaki",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-lavender-flower-organic",
+    "slug": "lavender-flower-organic",
+    "name": "Lavender Flower Organic",
+    "best_candidate": "Calendula Flower Powder Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/556/images/5312/Calendula_Flower_Powder__92916.1773080744.220.290.jpg?c=1",
+    "best_score": 0.4
+  },
+  {
+    "id": "ras-lemon-grass-organic",
+    "slug": "lemon-grass-organic",
+    "name": "Lemon Grass Organic",
+    "best_candidate": "Lemon Balm Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/727/images/5249/Lemon_Balm__35901.1770836947.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-linden-flower-leaf",
+    "slug": "linden-flower-leaf",
+    "name": "Linden Flower Leaf",
+    "best_candidate": "Hawthorn Leaf & Flower Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/694/images/5005/Hathorn_Leaf_and_Flower_Website__46408.1762464968.220.290.jpg?c=1",
+    "best_score": 0.4
+  },
+  {
+    "id": "ras-meadowsweet",
+    "slug": "meadowsweet",
+    "name": "Meadowsweet",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-passion-flower-organic",
+    "slug": "passion-flower-organic",
+    "name": "Passion Flower Organic",
+    "best_candidate": "Calendula Flower Powder Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/556/images/5312/Calendula_Flower_Powder__92916.1773080744.220.290.jpg?c=1",
+    "best_score": 0.4
+  },
+  {
+    "id": "ras-queen-of-the-meadow",
+    "slug": "queen-of-the-meadow",
+    "name": "Queen of the Meadow",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.17
+  },
+  {
+    "id": "ras-rose-hips-organic",
+    "slug": "rose-hips-organic",
+    "name": "Rose Hips Organic",
+    "best_candidate": "Rose Buds Whole Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/839/images/5049/Rose_Buds_Website__11370.1763412039.220.290.jpg?c=1",
+    "best_score": 0.4
+  },
+  {
+    "id": "ras-savory",
+    "slug": "savory",
+    "name": "Savory",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-scullcap-herb-organic",
+    "slug": "scullcap-herb-organic",
+    "name": "Scullcap Herb Organic",
+    "best_candidate": "Meadowsweet Herb Organic",
+    "best_candidate_img": "https://cdn11.bigcommerce.com/s-8466dwhhql/products/756/images/5529/Meadowsweet_H36432-001-T__54160.1778778182.220.290.jpg?c=1",
+    "best_score": 0.5
+  },
+  {
+    "id": "ras-squaw-vine",
+    "slug": "squaw-vine",
+    "name": "Squaw Vine",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-vervain",
+    "slug": "vervain",
+    "name": "Vervain",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-violet-leaf",
+    "slug": "violet-leaf",
+    "name": "Violet Leaf",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  },
+  {
+    "id": "ras-yerba-mansa-root",
+    "slug": "yerba-mansa-root",
+    "name": "Yerba Mansa Root",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.25
+  },
+  {
+    "id": "ras-zea-mays",
+    "slug": "zea-mays",
+    "name": "Zea Mays",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-zizyphus",
+    "slug": "zizyphus",
+    "name": "Zizyphus",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0
+  },
+  {
+    "id": "ras-zedoary-root",
+    "slug": "zedoary-root",
+    "name": "Zedoary Root",
+    "best_candidate": null,
+    "best_candidate_img": null,
+    "best_score": 0.33
+  }
+]
