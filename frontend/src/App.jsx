@@ -682,6 +682,33 @@ function OrderRow({ order, productMap }) {
   )
 }
 
+function SubscribersList({ secret }) {
+  const [subs, setSubs] = useState(null)
+
+  useEffect(() => {
+    fetch(`${API}/api/admin/subscribers`, { headers: { Authorization: `Bearer ${secret}` } })
+      .then(r => r.json())
+      .then(d => setSubs(d.subscribers || []))
+      .catch(() => setSubs([]))
+  }, [secret])
+
+  if (!subs) return <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>Loading subscribers...</div>
+  if (subs.length === 0) return <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>No subscribers yet.</div>
+
+  return (
+    <div style={{border:'1px solid #E4E4E7',borderRadius:12,overflow:'hidden'}}>
+      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',padding:'10px 16px',background:'#F9FAFB',borderBottom:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:11,fontWeight:600,letterSpacing:1,color:'#A1A1AA'}}>
+        <div>EMAIL</div><div>SOURCE</div><div>JOINED</div>
+      </div>
+      {subs.map(s => (
+        <div key={s.id} style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',padding:'10px 16px',borderBottom:'1px solid #F4F4F5',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B'}}>
+          <div>{s.email}</div><div style={{color:'#71717A'}}>{s.source}</div><div style={{color:'#71717A'}}>{s.created_at}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function AdminPage() {
   const [secret, setSecret] = useState(sessionStorage.getItem('rs_admin_secret') || '')
   const [input, setInput] = useState('')
@@ -689,6 +716,7 @@ function AdminPage() {
   const [productMap, setProductMap] = useState({})
   const [authError, setAuthError] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [tab, setTab] = useState('orders')
 
   async function loadOrders(s) {
     setAuthError(false)
@@ -734,17 +762,29 @@ function AdminPage() {
 
   return (
     <div style={{maxWidth:900,margin:'0 auto',padding:'40px 24px 80px'}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24,flexWrap:'wrap',gap:10}}>
-        <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:22,color:'#18181B'}}>Orders</div>
-        <div style={{display:'flex',gap:8}}>
-          {['all', ...ORDER_STATUSES].map(s => (
-            <button key={s} onClick={()=>setFilter(s)} style={{padding:'6px 14px',borderRadius:999,border:`1px solid ${filter===s?'#18181B':'#E4E4E7'}`,background:filter===s?'#18181B':'transparent',color:filter===s?'#fff':'#52525B',fontFamily:'Inter, sans-serif',fontSize:12,cursor:'pointer'}}>{s}</button>
-          ))}
-        </div>
+      <div style={{display:'flex',gap:8,marginBottom:24}}>
+        <button onClick={()=>setTab('orders')} style={{padding:'8px 18px',borderRadius:999,border:`1px solid ${tab==='orders'?'#18181B':'#E4E4E7'}`,background:tab==='orders'?'#18181B':'transparent',color:tab==='orders'?'#fff':'#52525B',fontFamily:'Space Grotesk, sans-serif',fontSize:13,fontWeight:600,cursor:'pointer'}}>Orders</button>
+        <button onClick={()=>setTab('subscribers')} style={{padding:'8px 18px',borderRadius:999,border:`1px solid ${tab==='subscribers'?'#18181B':'#E4E4E7'}`,background:tab==='subscribers'?'#18181B':'transparent',color:tab==='subscribers'?'#fff':'#52525B',fontFamily:'Space Grotesk, sans-serif',fontSize:13,fontWeight:600,cursor:'pointer'}}>Subscribers</button>
       </div>
-      {!orders && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>Loading orders...</div>}
-      {filtered && filtered.length === 0 && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>No orders found.</div>}
-      {filtered && filtered.map(o => <OrderRow key={o.id} order={o} productMap={productMap}/>)}
+
+      {tab === 'orders' && <>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24,flexWrap:'wrap',gap:10}}>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:22,color:'#18181B'}}>Orders</div>
+          <div style={{display:'flex',gap:8}}>
+            {['all', ...ORDER_STATUSES].map(s => (
+              <button key={s} onClick={()=>setFilter(s)} style={{padding:'6px 14px',borderRadius:999,border:`1px solid ${filter===s?'#18181B':'#E4E4E7'}`,background:filter===s?'#18181B':'transparent',color:filter===s?'#fff':'#52525B',fontFamily:'Inter, sans-serif',fontSize:12,cursor:'pointer'}}>{s}</button>
+            ))}
+          </div>
+        </div>
+        {!orders && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>Loading orders...</div>}
+        {filtered && filtered.length === 0 && <div style={{fontFamily:'Inter, sans-serif',color:'#A1A1AA'}}>No orders found.</div>}
+        {filtered && filtered.map(o => <OrderRow key={o.id} order={o} productMap={productMap}/>)}
+      </>}
+
+      {tab === 'subscribers' && <>
+        <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:22,color:'#18181B',marginBottom:24}}>Subscribers</div>
+        <SubscribersList secret={secret}/>
+      </>}
     </div>
   )
 }
