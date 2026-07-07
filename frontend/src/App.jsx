@@ -18,6 +18,8 @@ const SIZES = [
   { label:'1lb',  oz:16 },
 ]
 
+const FREE_SHIPPING_THRESHOLD_CENTS = 4500 // $45, must match worker/src/routes/orders.js
+
 const COMPANY = {
   addressLine1: '850 S Boulder Hwy, Ste 370',
   city: 'Henderson',
@@ -170,13 +172,15 @@ function ProductCard({ product, onAdd, onOpen }) {
   )
 }
 
-function ProductModal({ product, onClose, onAdd }) {
+function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
   const [selectedOz, setSelectedOz] = useState(2)
   const [added, setAdded] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   const priceCents = priceForSize(product, selectedOz)
   const sizeLabel = SIZES.find(s => s.oz === selectedOz)?.label || `${selectedOz}oz`
+  const projectedTotal = cartTotalCents + priceCents
+  const remainingCents = FREE_SHIPPING_THRESHOLD_CENTS - projectedTotal
 
   function handleAdd() {
     onAdd(product, selectedOz, priceCents, sizeLabel)
@@ -213,6 +217,12 @@ function ProductModal({ product, onClose, onAdd }) {
                 )
               })}
             </div>
+          </div>
+
+          <div style={{background:remainingCents<=0?'#F0FDF4':'#F9FAFB',border:`1px solid ${remainingCents<=0?'#BBF7D0':'#E4E4E7'}`,borderRadius:8,padding:'10px 12px',fontFamily:'Inter, sans-serif',fontSize:12,color:remainingCents<=0?'#15803D':'#52525B',textAlign:'center'}}>
+            {remainingCents <= 0
+              ? '🎉 This order qualifies for free US shipping!'
+              : `Add $${(remainingCents/100).toFixed(2)} more to unlock free US shipping`}
           </div>
 
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
@@ -291,6 +301,21 @@ function CartDrawer({ cart, onClose, onRemove, onQty, onCheckout, checkingOut })
         <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,color:'#A1A1AA',cursor:'pointer'}}>x</button>
       </div>
       {cart.length === 0 ? <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>Nothing added yet.</p> : <>
+        {(() => {
+          const totalCents = cart.reduce((s,i)=>s+i.price_cents*i.qty,0)
+          const remaining = FREE_SHIPPING_THRESHOLD_CENTS - totalCents
+          const pct = Math.min(100, (totalCents / FREE_SHIPPING_THRESHOLD_CENTS) * 100)
+          return (
+            <div style={{marginBottom:18}}>
+              <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:remaining<=0?'#16A34A':'#52525B',marginBottom:6}}>
+                {remaining <= 0 ? '🎉 You unlocked free US shipping!' : `Add $${(remaining/100).toFixed(2)} more for free US shipping`}
+              </div>
+              <div style={{height:6,borderRadius:999,background:'#F4F4F5',overflow:'hidden'}}>
+                <div style={{height:'100%',width:`${pct}%`,background:'#16A34A',borderRadius:999,transition:'width 0.3s'}}/>
+              </div>
+            </div>
+          )
+        })()}
         {cart.map(item => (
           <div key={item.cartId} style={{display:'flex',justifyContent:'space-between',borderBottom:'1px solid #F4F4F5',paddingBottom:14,marginBottom:14}}>
             <div>
@@ -1070,6 +1095,10 @@ export default function App() {
   return (
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
+      <div style={{background:'#18181B',color:'#F4F4F5',textAlign:'center',padding:'8px 16px',fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500}}>
+        🌿 Free US shipping on orders $45+
+      </div>
+
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
         <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>{window.location.hash=''; window.scrollTo({top:0,behavior:'smooth'})}}/>
         <input type="text" value={search} onChange={e=>{goHomeThen(()=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})})}}
@@ -1218,7 +1247,7 @@ export default function App() {
       </>}
 
       {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart}/>
+        <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart} cartTotalCents={cart.reduce((s,i)=>s+i.price_cents*i.qty,0)}/>
       )}
 
       {showEmailPopup && page === 'home' && (
