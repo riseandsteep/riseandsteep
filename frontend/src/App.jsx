@@ -429,7 +429,6 @@ function AboutPage() {
         <p>Rise & Steep started with a simple frustration: most herbal tea is sold on vibes. Pretty packaging, vague promises, and not much else. We wanted something closer to how you'd approach training or nutrition — pick a goal, use the ingredients that actually support it, and skip the fluff.</p>
         <p>So that's what we built. Every blend on this site is organized around a specific outcome — energy, sleep, gut health, immunity, stress, or detox — and made from whole herbs sourced for quality, not just a nice label. No seed oils. No filler ingredients. Nothing added just to bulk out a bag.</p>
         <p>We also carry hundreds of individual herbs, teas, and mushrooms on their own, for people who already know what they're looking for and just want the real thing — organic, lab-sourced, and priced by the ounce so you can buy exactly as much as you need.</p>
-        <p>We're a small, home-based operation, which means we taste-test, source, and pack every blend ourselves. It also means if something's wrong, you're talking to the people who actually made it — not a call center.</p>
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))',gap:16,marginTop:40}}>
