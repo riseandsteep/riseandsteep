@@ -651,7 +651,7 @@ export default function App() {
       <footer style={{borderTop:'1px solid #E4E4E7',padding:'32px 24px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:24}}>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            <img src="logo.png" alt="Rise and Steep" style={{height:32,width:'auto'}}/>
+            <img src="logo.png" alt="Rise and Steep" style={{height:22,width:"auto"}}/>
             <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com - Herbal tea for performance</div>
           </div>
           <div style={{display:'flex',gap:48,flexWrap:'wrap',fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
