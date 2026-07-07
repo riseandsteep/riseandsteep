@@ -18,9 +18,24 @@ const SIZES = [
   { label:'1lb',  oz:16 },
 ]
 
+const COMPANY = {
+  addressLine1: '850 S Boulder Hwy, Ste 370',
+  city: 'Henderson',
+  state: 'NV',
+  zip: '89015',
+  country: 'US',
+  email: 'support@riseandsteep.com',
+}
+
 const BLEND_PROMPT = `You are the Rise & Steep master herbalist. Create a custom herbal tea blend. Respond ONLY with valid JSON:
 {"blend_name":"Name","tagline":"Short tagline","room":"energy|sleep|gut|immune|stress|detox","herbs":[{"name":"Herb","amount":"1 part","reason":"Why"}],"brewing":"Instructions","best_time":"Time","retail_price":24.00,"notes":"Note"}
 Use 3-6 herbs, parts system, price $18-38.`
+
+function getPageFromHash() {
+  const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
+  if (h === 'about' || h === 'contact') return h
+  return 'home'
+}
 
 function seedNum(str) {
   let h = 0
@@ -404,6 +419,62 @@ Timing: ${prefs.timing||'any'}`}]})
   )
 }
 
+function AboutPage() {
+  return (
+    <div style={{maxWidth:820,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>ABOUT RISE & STEEP</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(30px,4vw,44px)',color:'#18181B',lineHeight:1.1,margin:'0 0 24px',letterSpacing:'-0.5px'}}>Herbal tea, built like a training plan.</h1>
+
+      <div style={{display:'flex',flexDirection:'column',gap:20,fontFamily:'Inter, sans-serif',fontSize:15,color:'#3F3F46',lineHeight:1.75}}>
+        <p>Rise & Steep started with a simple frustration: most herbal tea is sold on vibes. Pretty packaging, vague promises, and not much else. We wanted something closer to how you'd approach training or nutrition — pick a goal, use the ingredients that actually support it, and skip the fluff.</p>
+        <p>So that's what we built. Every blend on this site is organized around a specific outcome — energy, sleep, gut health, immunity, stress, or detox — and made from whole herbs sourced for quality, not just a nice label. No seed oils. No filler ingredients. Nothing added just to bulk out a bag.</p>
+        <p>We also carry hundreds of individual herbs, teas, and mushrooms on their own, for people who already know what they're looking for and just want the real thing — organic, lab-sourced, and priced by the ounce so you can buy exactly as much as you need.</p>
+        <p>We're a small, home-based operation, which means we taste-test, source, and pack every blend ourselves. It also means if something's wrong, you're talking to the people who actually made it — not a call center.</p>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))',gap:16,marginTop:40}}>
+        {['No seed oils','No fillers','100% herbal','Lab-sourced'].map(tag => (
+          <div key={tag} style={{border:'1px solid #E4E4E7',borderRadius:12,padding:'16px',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,color:'#18181B',textAlign:'center'}}>{tag}</div>
+        ))}
+      </div>
+
+      <div style={{marginTop:48,padding:24,background:'#F9FAFB',borderRadius:12,border:'1px solid #E4E4E7'}}>
+        <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:16,color:'#18181B',marginBottom:8}}>Questions before you order?</div>
+        <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B',margin:0,lineHeight:1.6}}>Reach out any time — we'd rather answer a question up front than have you guess. See our <a href="#contact" style={{color:'#16A34A',fontWeight:600}}>Contact page</a> for details.</p>
+      </div>
+    </div>
+  )
+}
+
+function ContactPage() {
+  return (
+    <div style={{maxWidth:820,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>CONTACT</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(30px,4vw,44px)',color:'#18181B',lineHeight:1.1,margin:'0 0 16px',letterSpacing:'-0.5px'}}>Get in touch.</h1>
+      <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.7,margin:'0 0 40px',maxWidth:520}}>Questions about an order, a blend, wholesale pricing, or anything else — we usually respond within 1-2 business days.</p>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))',gap:20}}>
+        <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:24}}>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:13,letterSpacing:1,color:'#A1A1AA',marginBottom:10}}>EMAIL</div>
+          <a href={`mailto:${COMPANY.email}`} style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:'#16A34A',textDecoration:'none'}}>{COMPANY.email}</a>
+        </div>
+        <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:24}}>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:13,letterSpacing:1,color:'#A1A1AA',marginBottom:10}}>MAILING ADDRESS</div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#18181B',lineHeight:1.6}}>
+            {COMPANY.addressLine1}<br/>
+            {COMPANY.city}, {COMPANY.state} {COMPANY.zip}<br/>
+            {COMPANY.country}
+          </div>
+        </div>
+      </div>
+
+      <div style={{marginTop:32,fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>
+        Looking for bulk or wholesale pricing? Mention it in your email and we'll follow up with details.
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -414,11 +485,21 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [showCount, setShowCount] = useState(24)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [page, setPage] = useState(getPageFromHash())
   const shopRef = useRef(null)
   const blendRef = useRef(null)
 
   useEffect(() => {
     fetchAllProducts().then(prods => { setProducts(prods); setLoading(false) }).catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    function onHashChange() {
+      setPage(getPageFromHash())
+      window.scrollTo({ top: 0 })
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   const categories = useMemo(() => {
@@ -438,9 +519,20 @@ export default function App() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0)
   const currentRoom = ROOMS.find(r => r.id === activeRoom) || null
 
+  function goHomeThen(fn) {
+    if (page !== 'home') {
+      window.location.hash = ''
+      setTimeout(fn, 100)
+    } else {
+      fn()
+    }
+  }
+
   function selectRoom(id) {
-    setActiveRoom(id); setActiveCat('All'); setSearch(''); setShowCount(24)
-    if (id) setTimeout(() => shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'}), 80)
+    goHomeThen(() => {
+      setActiveRoom(id); setActiveCat('All'); setSearch(''); setShowCount(24)
+      if (id) setTimeout(() => shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'}), 80)
+    })
   }
 
   function addToCart(product, oz, priceCents, sizeLabel) {
@@ -459,101 +551,124 @@ export default function App() {
     <div style={{background:'#fff',minHeight:'100vh',position:'relative'}}>
 
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
-        <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}/>
-        <input type="text" value={search} onChange={e=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}}
+        <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>{window.location.hash=''; window.scrollTo({top:0,behavior:'smooth'})}}/>
+        <input type="text" value={search} onChange={e=>{goHomeThen(()=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})})}}
           placeholder="Search hundreds of herbs, teas & mushrooms..."
           style={{flex:1,maxWidth:320,padding:'8px 14px',borderRadius:999,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B',background:'#F9FAFB'}}
         />
         <div style={{display:'flex',gap:20,fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
-          <span style={{cursor:'pointer'}} onClick={()=>shopRef.current?.scrollIntoView({behavior:'smooth'})}>Shop</span>
-          <span style={{cursor:'pointer'}} onClick={()=>blendRef.current?.scrollIntoView({behavior:'smooth'})}>Create Blend</span>
+          <span style={{cursor:'pointer'}} onClick={()=>goHomeThen(()=>shopRef.current?.scrollIntoView({behavior:'smooth'}))}>Shop</span>
+          <span style={{cursor:'pointer'}} onClick={()=>goHomeThen(()=>blendRef.current?.scrollIntoView({behavior:'smooth'}))}>Create Blend</span>
           <span style={{cursor:'pointer'}}>Wholesale</span>
+          <span style={{cursor:'pointer',fontWeight:page==='about'?700:400,color:page==='about'?'#18181B':'#52525B'}} onClick={()=>window.location.hash='about'}>About</span>
+          <span style={{cursor:'pointer',fontWeight:page==='contact'?700:400,color:page==='contact'?'#18181B':'#52525B'}} onClick={()=>window.location.hash='contact'}>Contact</span>
         </div>
         <button onClick={()=>setCartOpen(!cartOpen)} style={{display:'flex',alignItems:'center',gap:8,fontFamily:'Inter, sans-serif',fontSize:13,border:'1px solid #E4E4E7',borderRadius:999,padding:'8px 16px',background:'#fff',cursor:'pointer',color:'#18181B',flexShrink:0}}>
           Cart <span style={{background:'#18181B',color:'#fff',borderRadius:999,fontSize:11,minWidth:18,height:18,display:'inline-flex',alignItems:'center',justifyContent:'center',padding:'0 4px'}}>{cartCount}</span>
         </button>
       </nav>
 
-      <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
-        <div style={{flex:'1 1 360px',minWidth:300}}>
-          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2.5,color:'#A1A1AA',marginBottom:18}}>HERBAL TEA FOR PERFORMANCE</div>
-          <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(42px,5.5vw,68px)',color:'#18181B',lineHeight:0.95,margin:0,letterSpacing:'-2px'}}>Steep toward<br/><span style={{color:'#A1A1AA'}}>optimal.</span></h1>
-          <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel or search and browse hundreds of herbs, teas & mushrooms.</p>
-          <div style={{display:'flex',gap:8,marginTop:20,flexWrap:'wrap'}}>
-            {['No seed oils','No fillers','100% herbal','Lab-sourced'].map(tag => <div key={tag} style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#71717A',border:'1px solid #E4E4E7',borderRadius:999,padding:'5px 12px'}}>{tag}</div>)}
-          </div>
-          <div style={{marginTop:28,display:'flex',flexWrap:'wrap',gap:8}}>
-            {ROOMS.map(room => <button key={room.id} onClick={()=>selectRoom(room.id)} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'6px 14px',borderRadius:999,cursor:'pointer',border:`1.5px solid ${activeRoom===room.id?room.color:'#E4E4E7'}`,background:activeRoom===room.id?room.light:'transparent',color:activeRoom===room.id?room.dark:'#52525B',transition:'all 0.15s'}}>{room.label}</button>)}
-          </div>
-        </div>
-        <div style={{flex:'0 0 auto',display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',letterSpacing:1.5,marginBottom:10,textAlign:'center'}}>SELECT YOUR GOAL</div>
-          <GoalWheel active={activeRoom} onSelect={selectRoom}/>
-          {activeRoom && <button onClick={()=>setActiveRoom(null)} style={{marginTop:10,background:'none',border:'none',fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',cursor:'pointer'}}>Clear selection x</button>}
-        </div>
-      </section>
+      {page === 'about' && <AboutPage/>}
+      {page === 'contact' && <ContactPage/>}
 
-      <div style={{borderTop:'1px solid #E4E4E7',borderBottom:'1px solid #E4E4E7',padding:'14px 24px'}}>
-        <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexWrap:'wrap'}}>
-          {[['456+','Herbs and Botanicals'],['6','Wellness Goals'],['100%','Certified Organic'],['0','Fillers']].map(([num,label],i) => (
-            <div key={i} style={{flex:'1 1 140px',padding:'0 20px',borderRight:i<3?'1px solid #E4E4E7':'none'}}>
-              <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:20,color:'#18181B'}}>{num}</div>
-              <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',marginTop:2}}>{label}</div>
+      {page === 'home' && <>
+        <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
+          <div style={{flex:'1 1 360px',minWidth:300}}>
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2.5,color:'#A1A1AA',marginBottom:18}}>HERBAL TEA FOR PERFORMANCE</div>
+            <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(42px,5.5vw,68px)',color:'#18181B',lineHeight:0.95,margin:0,letterSpacing:'-2px'}}>Steep toward<br/><span style={{color:'#A1A1AA'}}>optimal.</span></h1>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel or search and browse hundreds of herbs, teas & mushrooms.</p>
+            <div style={{display:'flex',gap:8,marginTop:20,flexWrap:'wrap'}}>
+              {['No seed oils','No fillers','100% herbal','Lab-sourced'].map(tag => <div key={tag} style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#71717A',border:'1px solid #E4E4E7',borderRadius:999,padding:'5px 12px'}}>{tag}</div>)}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {currentRoom && (
-        <div style={{borderTop:`4px solid ${currentRoom.color}`,background:currentRoom.light,padding:'24px'}}>
-          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:8,height:8,borderRadius:'50%',background:currentRoom.color}}/>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:700,color:currentRoom.dark}}>Showing: {currentRoom.label}</div>
-            <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#71717A'}}>{currentRoom.sub}</div>
+            <div style={{marginTop:28,display:'flex',flexWrap:'wrap',gap:8}}>
+              {ROOMS.map(room => <button key={room.id} onClick={()=>selectRoom(room.id)} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'6px 14px',borderRadius:999,cursor:'pointer',border:`1.5px solid ${activeRoom===room.id?room.color:'#E4E4E7'}`,background:activeRoom===room.id?room.light:'transparent',color:activeRoom===room.id?room.dark:'#52525B',transition:'all 0.15s'}}>{room.label}</button>)}
+            </div>
           </div>
-        </div>
-      )}
+          <div style={{flex:'0 0 auto',display:'flex',flexDirection:'column',alignItems:'center'}}>
+            <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',letterSpacing:1.5,marginBottom:10,textAlign:'center'}}>SELECT YOUR GOAL</div>
+            <GoalWheel active={activeRoom} onSelect={selectRoom}/>
+            {activeRoom && <button onClick={()=>setActiveRoom(null)} style={{marginTop:10,background:'none',border:'none',fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',cursor:'pointer'}}>Clear selection x</button>}
+          </div>
+        </section>
 
-      <div ref={shopRef} style={{maxWidth:1100,margin:'0 auto',padding:'36px 24px'}}>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
-          {categories.map(cat => <button key={cat} onClick={()=>{setActiveCat(cat);setSearch('');setShowCount(24)}} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,cursor:'pointer',border:`1px solid ${activeCat===cat?'#18181B':'#E4E4E7'}`,background:activeCat===cat?'#18181B':'transparent',color:activeCat===cat?'#fff':'#52525B',transition:'all 0.15s'}}>{cat}</button>)}
-        </div>
-        <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA',marginBottom:16}}>
-          {filtered.length} product{filtered.length!==1?'s':''}{search?` for "${search}"`:''}
-        </div>
-        {filtered.length === 0
-          ? <div style={{textAlign:'center',padding:'60px 0',fontFamily:'Inter, sans-serif',fontSize:15,color:'#A1A1AA'}}>No products found.</div>
-          : <>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px,1fr))',gap:14}}>
-                {filtered.slice(0,showCount).map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={setSelectedProduct}/>)}
+        <div style={{borderTop:'1px solid #E4E4E7',borderBottom:'1px solid #E4E4E7',padding:'14px 24px'}}>
+          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexWrap:'wrap'}}>
+            {[['456+','Herbs and Botanicals'],['6','Wellness Goals'],['100%','Certified Organic'],['0','Fillers']].map(([num,label],i) => (
+              <div key={i} style={{flex:'1 1 140px',padding:'0 20px',borderRight:i<3?'1px solid #E4E4E7':'none'}}>
+                <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:20,color:'#18181B'}}>{num}</div>
+                <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA',marginTop:2}}>{label}</div>
               </div>
-              {filtered.length > showCount && (
-                <div style={{textAlign:'center',marginTop:28}}>
-                  <button onClick={()=>setShowCount(n=>n+24)} style={{fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,padding:'12px 32px',borderRadius:999,border:'1px solid #18181B',background:'transparent',color:'#18181B',cursor:'pointer'}}>
-                    Load more ({filtered.length-showCount} remaining)
-                  </button>
-                </div>
-              )}
-            </>
-        }
-      </div>
-
-      <div ref={blendRef}><BlendSection/></div>
-
-      <div style={{background:'#F9FAFB',borderTop:'1px solid #E4E4E7',padding:'48px 24px'}}>
-        <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:48,flexWrap:'wrap',alignItems:'center'}}>
-          <div style={{flex:'1 1 400px'}}>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE AND STEEP</div>
-            <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(26px,4vw,40px)',color:'#18181B',lineHeight:1.05,margin:0,letterSpacing:'-0.5px'}}>Every blend starts with a question: what do you actually need today?</h2>
+            ))}
           </div>
-          <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>We source whole herbs in bulk, blend them around measurable effect profiles, and package them without fillers or fluff. No wellness theater. Just what works.</p>
         </div>
-      </div>
 
-      <footer style={{borderTop:'1px solid #E4E4E7',padding:'24px'}}>
-        <div style={{maxWidth:1100,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
-          <img src="logo.png" alt="Rise and Steep" style={{height:32,width:'auto'}}/>
-          <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com - Herbal tea for performance</div>
+        {currentRoom && (
+          <div style={{borderTop:`4px solid ${currentRoom.color}`,background:currentRoom.light,padding:'24px'}}>
+            <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:10}}>
+              <div style={{width:8,height:8,borderRadius:'50%',background:currentRoom.color}}/>
+              <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:700,color:currentRoom.dark}}>Showing: {currentRoom.label}</div>
+              <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#71717A'}}>{currentRoom.sub}</div>
+            </div>
+          </div>
+        )}
+
+        <div ref={shopRef} style={{maxWidth:1100,margin:'0 auto',padding:'36px 24px'}}>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+            {categories.map(cat => <button key={cat} onClick={()=>{setActiveCat(cat);setSearch('');setShowCount(24)}} style={{fontFamily:'Inter, sans-serif',fontSize:12,fontWeight:500,padding:'7px 14px',borderRadius:999,cursor:'pointer',border:`1px solid ${activeCat===cat?'#18181B':'#E4E4E7'}`,background:activeCat===cat?'#18181B':'transparent',color:activeCat===cat?'#fff':'#52525B',transition:'all 0.15s'}}>{cat}</button>)}
+          </div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA',marginBottom:16}}>
+            {filtered.length} product{filtered.length!==1?'s':''}{search?` for "${search}"`:''}
+          </div>
+          {filtered.length === 0
+            ? <div style={{textAlign:'center',padding:'60px 0',fontFamily:'Inter, sans-serif',fontSize:15,color:'#A1A1AA'}}>No products found.</div>
+            : <>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px,1fr))',gap:14}}>
+                  {filtered.slice(0,showCount).map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={setSelectedProduct}/>)}
+                </div>
+                {filtered.length > showCount && (
+                  <div style={{textAlign:'center',marginTop:28}}>
+                    <button onClick={()=>setShowCount(n=>n+24)} style={{fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,padding:'12px 32px',borderRadius:999,border:'1px solid #18181B',background:'transparent',color:'#18181B',cursor:'pointer'}}>
+                      Load more ({filtered.length-showCount} remaining)
+                    </button>
+                  </div>
+                )}
+              </>
+          }
+        </div>
+
+        <div ref={blendRef}><BlendSection/></div>
+
+        <div style={{background:'#F9FAFB',borderTop:'1px solid #E4E4E7',padding:'48px 24px'}}>
+          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:48,flexWrap:'wrap',alignItems:'center'}}>
+            <div style={{flex:'1 1 400px'}}>
+              <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE AND STEEP</div>
+              <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(26px,4vw,40px)',color:'#18181B',lineHeight:1.05,margin:0,letterSpacing:'-0.5px'}}>Every blend starts with a question: what do you actually need today?</h2>
+            </div>
+            <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>We source whole herbs in bulk, blend them around measurable effect profiles, and package them without fillers or fluff. No wellness theater. Just what works.</p>
+          </div>
+        </div>
+      </>}
+
+      <footer style={{borderTop:'1px solid #E4E4E7',padding:'32px 24px'}}>
+        <div style={{maxWidth:1100,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:24}}>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            <img src="logo.png" alt="Rise and Steep" style={{height:32,width:'auto'}}/>
+            <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com - Herbal tea for performance</div>
+          </div>
+          <div style={{display:'flex',gap:48,flexWrap:'wrap',fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
+            <div>
+              <div style={{fontWeight:700,color:'#18181B',marginBottom:6}}>Contact</div>
+              <a href={`mailto:${COMPANY.email}`} style={{color:'#52525B',textDecoration:'none',display:'block',marginBottom:4}}>{COMPANY.email}</a>
+              <div>{COMPANY.addressLine1}</div>
+              <div>{COMPANY.city}, {COMPANY.state} {COMPANY.zip}</div>
+              <div>{COMPANY.country}</div>
+            </div>
+            <div>
+              <div style={{fontWeight:700,color:'#18181B',marginBottom:6}}>Company</div>
+              <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='about'}>About</span>
+              <span style={{cursor:'pointer',display:'block'}} onClick={()=>window.location.hash='contact'}>Contact</span>
+            </div>
+          </div>
         </div>
       </footer>
 
