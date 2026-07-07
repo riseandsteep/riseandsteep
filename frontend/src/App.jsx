@@ -37,17 +37,6 @@ function getPageFromHash() {
   return 'home'
 }
 
-function seedNum(str) {
-  let h = 0
-  for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0
-  return Math.abs(h)
-}
-
-function getSocialProof(name) {
-  const s = seedNum(name || 'x')
-  return { rating: (4.6 + (s % 4) * 0.1).toFixed(1), reviews: 80 + (s % 320), sold: 140 + (s % 480), trending: (s % 480) > 400 }
-}
-
 function priceForSize(product, oz) {
   const baseWeight = product.weight_oz || 2
   return Math.round((product.price_cents / baseWeight) * oz)
@@ -116,30 +105,6 @@ function GoalWheel({ active, onSelect }) {
   )
 }
 
-function Stars({ name, color }) {
-  const p = getSocialProof(name)
-  const full = Math.floor(p.rating)
-  return (
-    <div style={{marginTop:6}}>
-      <div style={{display:'flex',alignItems:'center',gap:6}}>
-        <div style={{display:'flex',gap:2}}>
-          {[1,2,3,4,5].map(i => (
-            <svg key={i} width={11} height={11} viewBox="0 0 24 24">
-              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill={i<=full?color:'#E4E4E7'}/>
-            </svg>
-          ))}
-        </div>
-        <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:600,color:'#18181B'}}>{p.rating}</span>
-        <span style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA'}}>({p.reviews})</span>
-      </div>
-      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:2}}>
-        {p.trending && <span style={{fontSize:9,fontWeight:700,letterSpacing:0.8,padding:'1px 6px',borderRadius:999,background:'#FEF3C7',color:'#B45309'}}>TRENDING</span>}
-        <span style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#52525B'}}><b>{p.sold}</b> sold this month</span>
-      </div>
-    </div>
-  )
-}
-
 function EffectBars({ product, color }) {
   const vals = [product.fx_energy, product.fx_calm, product.fx_focus, product.fx_digestion]
   const labels = ['E','C','F','D']
@@ -195,7 +160,6 @@ function ProductCard({ product, onAdd, onOpen }) {
           </div>
           <EffectBars product={product} color={room.accent}/>
         </div>
-        <Stars name={product.name} color={room.accent}/>
         <p style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#52525B',lineHeight:1.5,margin:0}}>{product.blurb}</p>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:'auto',paddingTop:4}}>
           <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:15,fontWeight:700,color:'#18181B'}}>${price}</span>
@@ -233,7 +197,6 @@ function ProductModal({ product, onClose, onAdd }) {
             </div>
             <EffectBars product={product} color={room.accent}/>
           </div>
-          <Stars name={product.name} color={room.accent}/>
           <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B',lineHeight:1.6,margin:0}}>{product.description || product.blurb}</p>
 
           <div>
@@ -439,7 +402,6 @@ Timing: ${prefs.timing||'any'}`}]})
                       <div style={{fontSize:11,color:'#A1A1AA'}}>2oz loose leaf</div>
                     </div>
                   </div>
-                  <Stars name={blend.blend_name} color={room.color}/>
                   <div style={{background:'rgba(255,255,255,0.7)',borderRadius:8,padding:'10px 12px',marginTop:10}}>
                     <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:'#A1A1AA',marginBottom:8}}>INGREDIENTS</div>
                     {blend.herbs?.map((h,i) => (
