@@ -11,6 +11,13 @@ const ROOMS = [
   { id:'detox',  label:'Detox & Reset', short:'Detox',  color:'#0D9488', light:'#F0FDFA', dark:'#134E4A', accent:'#2DD4BF' },
 ]
 
+const SIZES = [
+  { label:'1oz',  oz:1 },
+  { label:'2oz',  oz:2 },
+  { label:'4oz',  oz:4 },
+  { label:'1lb',  oz:16 },
+]
+
 const BLEND_PROMPT = `You are the Rise & Steep master herbalist. Create a custom herbal tea blend. Respond ONLY with valid JSON:
 {"blend_name":"Name","tagline":"Short tagline","room":"energy|sleep|gut|immune|stress|detox","herbs":[{"name":"Herb","amount":"1 part","reason":"Why"}],"brewing":"Instructions","best_time":"Time","retail_price":24.00,"notes":"Note"}
 Use 3-6 herbs, parts system, price $18-38.`
@@ -24,6 +31,11 @@ function seedNum(str) {
 function getSocialProof(name) {
   const s = seedNum(name || 'x')
   return { rating: (4.6 + (s % 4) * 0.1).toFixed(1), reviews: 80 + (s % 320), sold: 140 + (s % 480), trending: (s % 480) > 400 }
+}
+
+function priceForSize(product, oz) {
+  const baseWeight = product.weight_oz || 2
+  return Math.round((product.price_cents / baseWeight) * oz)
 }
 
 function polar(cx, cy, r, deg) {
@@ -128,32 +140,38 @@ function EffectBars({ product, color }) {
   )
 }
 
-function ProductCard({ product, onAdd }) {
-  const [added, setAdded] = useState(false)
+function ProductImage({ product, room, height }) {
   const [imgError, setImgError] = useState(false)
+  const initials = product.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()
+  const cat = product.tag ? product.tag.split(' · ')[0] : ''
+  const hasImage = !!product.image_key && !imgError
+  return (
+    <div style={{height,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0,position:'relative',overflow:'hidden'}}>
+      {hasImage ? (
+        <img src={product.image_key} alt={product.name} onError={() => setImgError(true)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+      ) : (
+        <>
+          <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function ProductCard({ product, onAdd, onOpen }) {
+  const [added, setAdded] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const price = (product.price_cents / 100).toFixed(2)
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
-  const initials = product.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()
-  const hasImage = !!product.image_key && !imgError
-  function handleAdd() { onAdd(product); setAdded(true); setTimeout(() => setAdded(false), 1800) }
+  function handleAdd(e) {
+    e.stopPropagation()
+    onAdd(product, 2, product.price_cents, '2oz')
+    setAdded(true); setTimeout(() => setAdded(false), 1800)
+  }
   return (
-    <div style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-      <div style={{height:140,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0,position:'relative',overflow:'hidden'}}>
-        {hasImage ? (
-          <img
-            src={product.image_key}
-            alt={product.name}
-            onError={() => setImgError(true)}
-            style={{width:'100%',height:'100%',objectFit:'cover'}}
-          />
-        ) : (
-          <>
-            <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
-            <div style={{fontFamily:'Inter, sans-serif',fontSize:10,color:room.color,letterSpacing:1,fontWeight:600,textTransform:'uppercase'}}>{cat || 'Herb'}</div>
-          </>
-        )}
-      </div>
+    <div onClick={() => onOpen(product)} style={{background:'#fff',border:`1px solid ${room.color}22`,borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column',cursor:'pointer'}}>
+      <ProductImage product={product} room={room} height={140}/>
       <div style={{padding:14,display:'flex',flexDirection:'column',gap:8,flex:1}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
           <div style={{flex:1,paddingRight:8}}>
@@ -173,6 +191,62 @@ function ProductCard({ product, onAdd }) {
   )
 }
 
+function ProductModal({ product, onClose, onAdd }) {
+  const [selectedOz, setSelectedOz] = useState(2)
+  const [added, setAdded] = useState(false)
+  const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
+  const cat = product.tag ? product.tag.split(' · ')[0] : ''
+  const priceCents = priceForSize(product, selectedOz)
+  const sizeLabel = SIZES.find(s => s.oz === selectedOz)?.label || `${selectedOz}oz`
+
+  function handleAdd() {
+    onAdd(product, selectedOz, priceCents, sizeLabel)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1800)
+  }
+
+  return (
+    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,overflow:'hidden',maxWidth:460,width:'100%',maxHeight:'88vh',overflowY:'auto',position:'relative'}}>
+        <button onClick={onClose} style={{position:'absolute',top:12,right:12,width:32,height:32,borderRadius:'50%',border:'none',background:'rgba(255,255,255,0.9)',fontSize:18,color:'#18181B',cursor:'pointer',zIndex:2,display:'flex',alignItems:'center',justifyContent:'center'}}>x</button>
+        <ProductImage product={product} room={room} height={220}/>
+        <div style={{padding:24,display:'flex',flexDirection:'column',gap:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12}}>
+            <div>
+              {cat && <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:room.color,marginBottom:4}}>{cat.toUpperCase()}</div>}
+              <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:22,color:'#18181B',lineHeight:1.15}}>{product.name}</div>
+            </div>
+            <EffectBars product={product} color={room.accent}/>
+          </div>
+          <Stars name={product.name} color={room.accent}/>
+          <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B',lineHeight:1.6,margin:0}}>{product.description || product.blurb}</p>
+
+          <div>
+            <div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:'#A1A1AA',marginBottom:8}}>SELECT SIZE</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:8}}>
+              {SIZES.map(s => {
+                const isSel = s.oz === selectedOz
+                const sPrice = (priceForSize(product, s.oz) / 100).toFixed(2)
+                return (
+                  <button key={s.label} onClick={()=>setSelectedOz(s.oz)} style={{padding:'10px 6px',borderRadius:8,border:`1.5px solid ${isSel?room.color:'#E4E4E7'}`,background:isSel?room.light:'#fff',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                    <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:13,fontWeight:700,color:isSel?room.dark:'#18181B'}}>{s.label}</span>
+                    <span style={{fontFamily:'Inter, sans-serif',fontSize:11,color:isSel?room.dark:'#71717A'}}>${sPrice}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
+            <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B'}}>${(priceCents/100).toFixed(2)}</span>
+            <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:14,fontWeight:600,padding:'12px 28px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function CartDrawer({ cart, onClose, onRemove, onQty }) {
   const total = cart.reduce((s, i) => s + (i.price_cents / 100) * i.qty, 0)
   return (
@@ -183,19 +257,19 @@ function CartDrawer({ cart, onClose, onRemove, onQty }) {
       </div>
       {cart.length === 0 ? <p style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>Nothing added yet.</p> : <>
         {cart.map(item => (
-          <div key={item.id} style={{display:'flex',justifyContent:'space-between',borderBottom:'1px solid #F4F4F5',paddingBottom:14,marginBottom:14}}>
+          <div key={item.cartId} style={{display:'flex',justifyContent:'space-between',borderBottom:'1px solid #F4F4F5',paddingBottom:14,marginBottom:14}}>
             <div>
-              <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:600,fontSize:13,color:'#18181B'}}>{item.name}</div>
+              <div style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:600,fontSize:13,color:'#18181B'}}>{item.name} <span style={{fontWeight:400,color:'#A1A1AA'}}>({item.size})</span></div>
               <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',marginTop:3}}>${(item.price_cents/100).toFixed(2)} each</div>
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                <button onClick={()=>onQty(item.id,-1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>-</button>
+                <button onClick={()=>onQty(item.cartId,-1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>-</button>
                 <span style={{fontFamily:'Inter, sans-serif',fontSize:13}}>{item.qty}</span>
-                <button onClick={()=>onQty(item.id,1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>+</button>
+                <button onClick={()=>onQty(item.cartId,1)} style={{width:22,height:22,borderRadius:6,border:'1px solid #E4E4E7',background:'transparent',cursor:'pointer',fontSize:12}}>+</button>
               </div>
             </div>
             <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',justifyContent:'space-between'}}>
               <span style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:14}}>${((item.price_cents/100)*item.qty).toFixed(2)}</span>
-              <button onClick={()=>onRemove(item.id)} style={{background:'none',border:'none',fontSize:11,color:'#A1A1AA',cursor:'pointer'}}>Remove</button>
+              <button onClick={()=>onRemove(item.cartId)} style={{background:'none',border:'none',fontSize:11,color:'#A1A1AA',cursor:'pointer'}}>Remove</button>
             </div>
           </div>
         ))}
@@ -339,6 +413,7 @@ export default function App() {
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
   const [showCount, setShowCount] = useState(24)
+  const [selectedProduct, setSelectedProduct] = useState(null)
   const shopRef = useRef(null)
   const blendRef = useRef(null)
 
@@ -367,8 +442,14 @@ export default function App() {
     setActiveRoom(id); setActiveCat('All'); setSearch(''); setShowCount(24)
     if (id) setTimeout(() => shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'}), 80)
   }
-  function addToCart(product) {
-    setCart(prev => { const ex = prev.find(i => i.id === product.id); if (ex) return prev.map(i => i.id===product.id?{...i,qty:i.qty+1}:i); return [...prev,{...product,qty:1}] })
+
+  function addToCart(product, oz, priceCents, sizeLabel) {
+    const cartId = `${product.id}__${oz}`
+    setCart(prev => {
+      const ex = prev.find(i => i.cartId === cartId)
+      if (ex) return prev.map(i => i.cartId===cartId ? {...i, qty:i.qty+1} : i)
+      return [...prev, { cartId, id: product.id, name: product.name, size: sizeLabel, price_cents: priceCents, qty: 1 }]
+    })
     setCartOpen(true)
   }
 
@@ -444,7 +525,7 @@ export default function App() {
           ? <div style={{textAlign:'center',padding:'60px 0',fontFamily:'Inter, sans-serif',fontSize:15,color:'#A1A1AA'}}>No products found.</div>
           : <>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px,1fr))',gap:14}}>
-                {filtered.slice(0,showCount).map(p => <ProductCard key={p.id} product={p} onAdd={addToCart}/>)}
+                {filtered.slice(0,showCount).map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={setSelectedProduct}/>)}
               </div>
               {filtered.length > showCount && (
                 <div style={{textAlign:'center',marginTop:28}}>
@@ -479,10 +560,14 @@ export default function App() {
       {cartOpen && <>
         <div onClick={()=>setCartOpen(false)} style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.15)',zIndex:39}}/>
         <CartDrawer cart={cart} onClose={()=>setCartOpen(false)}
-          onRemove={id=>setCart(prev=>prev.filter(i=>i.id!==id))}
-          onQty={(id,d)=>setCart(prev=>prev.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0))}
+          onRemove={cartId=>setCart(prev=>prev.filter(i=>i.cartId!==cartId))}
+          onQty={(cartId,d)=>setCart(prev=>prev.map(i=>i.cartId===cartId?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0))}
         />
       </>}
+
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} onAdd={addToCart}/>
+      )}
     </div>
   )
 }
