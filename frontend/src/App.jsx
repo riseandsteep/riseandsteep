@@ -380,7 +380,7 @@ export default function App() {
       <nav style={{background:'#fff',borderBottom:'1px solid #E4E4E7',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 24px',position:'sticky',top:0,zIndex:30,gap:16,flexWrap:'wrap'}}>
         <img src="logo.png" alt="Rise and Steep" style={{height:44,width:'auto',cursor:'pointer',background:'white',padding:'4px 8px',borderRadius:8}} onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}/>
         <input type="text" value={search} onChange={e=>{setSearch(e.target.value);setActiveRoom(null);setActiveCat('All');setShowCount(24);shopRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}}
-          placeholder="Search 456+ herbs, teas, mushrooms..."
+          placeholder="Search hundreds of herbs, teas & mushrooms..."
           style={{flex:1,maxWidth:320,padding:'8px 14px',borderRadius:999,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B',background:'#F9FAFB'}}
         />
         <div style={{display:'flex',gap:20,fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
@@ -397,7 +397,7 @@ export default function App() {
         <div style={{flex:'1 1 360px',minWidth:300}}>
           <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2.5,color:'#A1A1AA',marginBottom:18}}>HERBAL TEA FOR PERFORMANCE</div>
           <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(42px,5.5vw,68px)',color:'#18181B',lineHeight:0.95,margin:0,letterSpacing:'-2px'}}>Steep toward<br/><span style={{color:'#A1A1AA'}}>optimal.</span></h1>
-          <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel or search and browse 456+ herbs, teas, and botanicals.</p>
+          <p style={{fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,marginTop:20,maxWidth:400}}>Select your goal on the wheel or search and browse hundreds of herbs, teas & mushrooms.</p>
           <div style={{display:'flex',gap:8,marginTop:20,flexWrap:'wrap'}}>
             {['No seed oils','No fillers','100% herbal','Lab-sourced'].map(tag => <div key={tag} style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#71717A',border:'1px solid #E4E4E7',borderRadius:999,padding:'5px 12px'}}>{tag}</div>)}
           </div>
