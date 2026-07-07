@@ -33,7 +33,7 @@ Use 3-6 herbs, parts system, price $18-38.`
 
 function getPageFromHash() {
   const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
-  if (h === 'about' || h === 'contact' || h === 'success' || h === 'admin') return h
+  if (h === 'about' || h === 'contact' || h === 'success' || h === 'admin' || h === 'privacy' || h === 'terms' || h === 'shipping') return h
   return 'home'
 }
 
@@ -531,6 +531,88 @@ function ContactPage() {
   )
 }
 
+function PrivacyPage() {
+  return (
+    <div style={{maxWidth:760,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>LEGAL</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(28px,4vw,38px)',color:'#18181B',lineHeight:1.1,margin:'0 0 24px'}}>Privacy Policy</h1>
+      <div style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#3F3F46',lineHeight:1.75,display:'flex',flexDirection:'column',gap:16}}>
+        <p>Last updated: July 2026</p>
+        <p>Rise & Steep ("we," "us," or "our") respects your privacy. This policy explains what information we collect, how we use it, and the choices you have.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Information we collect</h3>
+        <p>When you place an order, we collect your name, email address, shipping address, and payment information. Payment is processed securely by Stripe — we never see or store your full card number. If you sign up for our email list, we collect only your email address.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>How we use it</h3>
+        <p>We use your information to process and ship your order, send order confirmations, respond to support requests, and — if you've opted in — send occasional emails about new products and restocks. We do not sell your personal information to third parties.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Third parties</h3>
+        <p>We share order information with Stripe (payment processing) and our shipping carrier (to deliver your package) only as needed to fulfill your order. These providers are bound by their own privacy and security obligations.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Your choices</h3>
+        <p>You can unsubscribe from marketing emails at any time using the link in any email, or by contacting us directly. To request deletion of your personal data, email us and we'll process your request promptly.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Contact</h3>
+        <p>Questions about this policy? Email <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a> or write to us at {COMPANY.addressLine1}, {COMPANY.city}, {COMPANY.state} {COMPANY.zip}.</p>
+      </div>
+    </div>
+  )
+}
+
+function TermsPage() {
+  return (
+    <div style={{maxWidth:760,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>LEGAL</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(28px,4vw,38px)',color:'#18181B',lineHeight:1.1,margin:'0 0 24px'}}>Terms of Service</h1>
+      <div style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#3F3F46',lineHeight:1.75,display:'flex',flexDirection:'column',gap:16}}>
+        <p>Last updated: July 2026</p>
+        <p>By using riseandsteep.com or placing an order with us, you agree to the following terms.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Orders and payment</h3>
+        <p>All orders are subject to product availability. Prices are listed in USD and may change without notice. Payment is processed securely at checkout via Stripe; your order is confirmed once payment is successfully completed.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Product information</h3>
+        <p>Our herbs, teas, and blends are sold as food and botanical products, not as drugs or supplements intended to diagnose, treat, cure, or prevent any disease. Statements on this site have not been evaluated by the FDA. Consult a healthcare provider before use if you are pregnant, nursing, taking medication, or have a medical condition.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Shipping and returns</h3>
+        <p>See our <a href="#shipping" style={{color:'#16A34A'}}>Shipping & Returns</a> page for details on delivery times and our return policy.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Limitation of liability</h3>
+        <p>Rise & Steep is not liable for any indirect, incidental, or consequential damages arising from the use of our products or website. Our total liability for any claim is limited to the amount you paid for the product in question.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Changes to these terms</h3>
+        <p>We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the updated terms.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Contact</h3>
+        <p>Questions? Email <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a>.</p>
+      </div>
+    </div>
+  )
+}
+
+function ShippingPage() {
+  return (
+    <div style={{maxWidth:760,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>SHIPPING & RETURNS</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(28px,4vw,38px)',color:'#18181B',lineHeight:1.1,margin:'0 0 24px'}}>Shipping & Returns</h1>
+      <div style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#3F3F46',lineHeight:1.75,display:'flex',flexDirection:'column',gap:16}}>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B'}}>Processing time</h3>
+        <p>Orders are typically packed and shipped within 1-3 business days. You'll receive an email with tracking information as soon as your order ships.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Shipping rates & delivery</h3>
+        <p>We ship via USPS and UPS within the United States. Exact shipping cost is calculated at checkout based on your order weight and destination. Most orders arrive within 3-7 business days of shipping.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Returns</h3>
+        <p>Because our products are food items, we're unable to accept returns of opened products for hygiene and safety reasons. If your order arrives damaged, incorrect, or defective, contact us within 14 days of delivery at <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a> and we'll make it right with a replacement or refund.</p>
+
+        <h3 style={{fontFamily:'Space Grotesk, sans-serif',fontSize:16,color:'#18181B',marginTop:8}}>Questions</h3>
+        <p>Reach out any time at <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a> — we're happy to help.</p>
+      </div>
+    </div>
+  )
+}
+
 function SuccessPage({ onOrderConfirmed }) {
   const [order, setOrder] = useState(null)
   const [status, setStatus] = useState('loading')
@@ -905,7 +987,7 @@ export default function App() {
         <div style={{display:'flex',gap:20,fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
           <span style={{cursor:'pointer'}} onClick={()=>goHomeThen(()=>shopRef.current?.scrollIntoView({behavior:'smooth'}))}>Shop</span>
           <span style={{cursor:'pointer'}} onClick={()=>goHomeThen(()=>blendRef.current?.scrollIntoView({behavior:'smooth'}))}>Create Blend</span>
-          <span style={{cursor:'pointer'}}>Wholesale</span>
+          <span style={{cursor:'pointer'}} onClick={()=>window.location.hash='contact'}>Wholesale</span>
           <span style={{cursor:'pointer',fontWeight:page==='about'?700:400,color:page==='about'?'#18181B':'#52525B'}} onClick={()=>window.location.hash='about'}>About</span>
           <span style={{cursor:'pointer',fontWeight:page==='contact'?700:400,color:page==='contact'?'#18181B':'#52525B'}} onClick={()=>window.location.hash='contact'}>Contact</span>
         </div>
@@ -918,6 +1000,9 @@ export default function App() {
       {page === 'contact' && <ContactPage/>}
       {page === 'success' && <SuccessPage onOrderConfirmed={()=>setCart([])}/>}
       {page === 'admin' && <AdminPage/>}
+      {page === 'privacy' && <PrivacyPage/>}
+      {page === 'terms' && <TermsPage/>}
+      {page === 'shipping' && <ShippingPage/>}
 
       {page === 'home' && <>
         <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
@@ -1015,6 +1100,12 @@ export default function App() {
               <div style={{fontWeight:700,color:'#18181B',marginBottom:6}}>Company</div>
               <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='about'}>About</span>
               <span style={{cursor:'pointer',display:'block'}} onClick={()=>window.location.hash='contact'}>Contact</span>
+            </div>
+            <div>
+              <div style={{fontWeight:700,color:'#18181B',marginBottom:6}}>Legal</div>
+              <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='shipping'}>Shipping & Returns</span>
+              <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='privacy'}>Privacy Policy</span>
+              <span style={{cursor:'pointer',display:'block'}} onClick={()=>window.location.hash='terms'}>Terms of Service</span>
             </div>
           </div>
         </div>
