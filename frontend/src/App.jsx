@@ -33,7 +33,7 @@ Use 3-6 herbs, parts system, price $18-38. Do not use the words "organic" or "ce
 
 function getPageFromHash() {
   const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
-  if (h === 'about' || h === 'contact' || h === 'success' || h === 'admin' || h === 'privacy' || h === 'terms' || h === 'shipping') return h
+  if (h === 'about' || h === 'contact' || h === 'success' || h === 'admin' || h === 'privacy' || h === 'terms' || h === 'shipping' || h === 'faq') return h
   return 'home'
 }
 
@@ -613,6 +613,66 @@ function ShippingPage() {
   )
 }
 
+const FAQ_ITEMS = [
+  { q: "How fresh are your herbs?", a: "We source in small batches and rotate stock regularly so you're never getting something that's been sitting in a warehouse for years. If a batch runs low, we replace it rather than let it age out." },
+  { q: "How should I store my herbs and tea?", a: "Keep them in a cool, dry place away from direct sunlight, ideally in an airtight container. Properly stored, most herbs stay at their best for 6-12 months." },
+  { q: "Are your products tested for quality?", a: "Yes — our herbs are lab-sourced and screened for identity and contaminants before they reach you." },
+  { q: "Can I take these herbs if I'm pregnant, nursing, or on medication?", a: "Please consult a qualified healthcare provider before using any herbal product if you're pregnant, nursing, or taking medication. Some herbs can interact with medications or aren't recommended during pregnancy." },
+  { q: "How does the AI Blend Builder work?", a: "Describe what you're dealing with — low energy, trouble sleeping, stress, etc. — and our AI herbalist suggests a custom blend of herbs, ratios, and brewing instructions tailored to your goal." },
+  { q: "What sizes do you offer?", a: "Most products are available in 1oz, 2oz, 4oz, or 1lb, priced per ounce so you only buy as much as you need." },
+  { q: "Do you ship internationally?", a: "Right now we ship to the United States and Canada only. See our Shipping & Returns page for rates and delivery estimates." },
+  { q: "What's your return policy?", a: "Since our products are food items, we can't accept returns of opened products for hygiene reasons. If your order arrives damaged, incorrect, or defective, contact us within 14 days and we'll make it right." },
+  { q: "Do you offer wholesale pricing?", a: "Yes — email us at support@riseandsteep.com with your business details and what you're interested in, and we'll follow up with wholesale pricing." },
+  { q: "How do I contact support?", a: "Email support@riseandsteep.com any time — we typically respond within 1-2 business days." },
+]
+
+function AccordionItem({ q, a, isOpen, onToggle }) {
+  return (
+    <div style={{borderBottom:'1px solid #E4E4E7'}}>
+      <button onClick={onToggle} style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'16px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left'}}>
+        <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:15,fontWeight:600,color:'#18181B'}}>{q}</span>
+        <span style={{fontFamily:'Inter, sans-serif',fontSize:18,color:'#A1A1AA',transform:isOpen?'rotate(45deg)':'none',transition:'transform 0.2s',flexShrink:0,marginLeft:12}}>+</span>
+      </button>
+      {isOpen && <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B',lineHeight:1.65,margin:'0 0 18px',paddingRight:28}}>{a}</p>}
+    </div>
+  )
+}
+
+function FAQPage() {
+  const [openIndex, setOpenIndex] = useState(0)
+  return (
+    <div style={{maxWidth:760,margin:'0 auto',padding:'56px 24px 80px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:14}}>FAQ</div>
+      <h1 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(28px,4vw,38px)',color:'#18181B',lineHeight:1.1,margin:'0 0 32px'}}>Frequently asked questions.</h1>
+      <div>
+        {FAQ_ITEMS.map((item, i) => (
+          <AccordionItem key={i} q={item.q} a={item.a} isOpen={openIndex===i} onToggle={()=>setOpenIndex(openIndex===i?-1:i)}/>
+        ))}
+      </div>
+      <div style={{marginTop:32,fontFamily:'Inter, sans-serif',fontSize:13,color:'#A1A1AA'}}>
+        Still have a question? <a href="#contact" style={{color:'#16A34A',fontWeight:600}}>Contact us</a>.
+      </div>
+    </div>
+  )
+}
+
+function HomeFAQSection() {
+  const [openIndex, setOpenIndex] = useState(0)
+  const preview = FAQ_ITEMS.slice(0, 5)
+  return (
+    <div style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px'}}>
+      <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:12}}>FAQ</div>
+      <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(24px,4vw,32px)',color:'#18181B',margin:'0 0 20px'}}>Common questions</h2>
+      <div style={{maxWidth:700}}>
+        {preview.map((item, i) => (
+          <AccordionItem key={i} q={item.q} a={item.a} isOpen={openIndex===i} onToggle={()=>setOpenIndex(openIndex===i?-1:i)}/>
+        ))}
+      </div>
+      <a href="#faq" style={{display:'inline-block',marginTop:20,fontFamily:'Inter, sans-serif',fontSize:13,color:'#16A34A',fontWeight:600}}>See all FAQs →</a>
+    </div>
+  )
+}
+
 function SuccessPage({ onOrderConfirmed }) {
   const [order, setOrder] = useState(null)
   const [status, setStatus] = useState('loading')
@@ -1003,6 +1063,7 @@ export default function App() {
       {page === 'privacy' && <PrivacyPage/>}
       {page === 'terms' && <TermsPage/>}
       {page === 'shipping' && <ShippingPage/>}
+      {page === 'faq' && <FAQPage/>}
 
       {page === 'home' && <>
         <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
@@ -1080,6 +1141,8 @@ export default function App() {
             <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>Every blend is built around a specific goal, formulated with precise ratios instead of guesswork, and held to one standard: real ingredients, nothing added just to bulk out a bag. And if you already know what you're after, we carry hundreds of classic herbs and spices on their own too, sold straight and priced by the ounce. No wellness theater. Just what works.</p>
           </div>
         </div>
+
+        <HomeFAQSection/>
       </>}
 
       <footer style={{borderTop:'1px solid #E4E4E7',padding:'32px 24px'}}>
@@ -1103,6 +1166,7 @@ export default function App() {
             </div>
             <div>
               <div style={{fontWeight:700,color:'#18181B',marginBottom:6}}>Legal</div>
+              <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='faq'}>FAQ</span>
               <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='shipping'}>Shipping & Returns</span>
               <span style={{cursor:'pointer',display:'block',marginBottom:4}} onClick={()=>window.location.hash='privacy'}>Privacy Policy</span>
               <span style={{cursor:'pointer',display:'block'}} onClick={()=>window.location.hash='terms'}>Terms of Service</span>
