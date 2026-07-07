@@ -33,7 +33,7 @@ Use 3-6 herbs, parts system, price $18-38.`
 
 function getPageFromHash() {
   const h = (typeof window !== 'undefined' ? window.location.hash : '').replace('#', '')
-  if (h === 'about' || h === 'contact') return h
+  if (h === 'about' || h === 'contact' || h === 'success') return h
   return 'home'
 }
 
@@ -262,7 +262,7 @@ function ProductModal({ product, onClose, onAdd }) {
   )
 }
 
-function CartDrawer({ cart, onClose, onRemove, onQty }) {
+function CartDrawer({ cart, onClose, onRemove, onQty, onCheckout, checkingOut }) {
   const total = cart.reduce((s, i) => s + (i.price_cents / 100) * i.qty, 0)
   return (
     <div style={{position:'absolute',top:0,right:0,width:340,background:'#fff',borderLeft:'1px solid #E4E4E7',minHeight:'100%',padding:24,zIndex:40,boxSizing:'border-box'}}>
@@ -292,7 +292,7 @@ function CartDrawer({ cart, onClose, onRemove, onQty }) {
           <div style={{display:'flex',justifyContent:'space-between',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:16,color:'#18181B',marginBottom:12}}>
             <span>Subtotal</span><span>${total.toFixed(2)}</span>
           </div>
-          <button style={{width:'100%',padding:13,borderRadius:999,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>Checkout - coming soon</button>
+          <button onClick={onCheckout} disabled={checkingOut} style={{width:'100%',padding:13,borderRadius:999,border:'none',background:checkingOut?'#71717A':'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:checkingOut?'default':'pointer'}}>{checkingOut?'Redirecting...':'Checkout'}</button>
         </div>
       </>}
     </div>
@@ -474,6 +474,74 @@ function ContactPage() {
   )
 }
 
+function SuccessPage({ onOrderConfirmed }) {
+  const [order, setOrder] = useState(null)
+  const [status, setStatus] = useState('loading')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+    if (!sessionId) { setStatus('error'); return }
+
+    let attempts = 0
+    async function poll() {
+      attempts++
+      try {
+        const r = await fetch(`${API}/api/orders/by-session/${sessionId}`)
+        if (r.ok) {
+          const data = await r.json()
+          setOrder(data)
+          setStatus('ok')
+          onOrderConfirmed()
+          return
+        }
+      } catch {}
+      if (attempts < 8) setTimeout(poll, 1500)
+      else setStatus('error')
+    }
+    poll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  let items = []
+  try { items = order ? JSON.parse(order.items_json) : [] } catch {}
+
+  return (
+    <div style={{maxWidth:600,margin:'0 auto',padding:'72px 24px 80px',textAlign:'center'}}>
+      {status === 'loading' && (
+        <>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:20,fontWeight:700,color:'#18181B',marginBottom:10}}>Confirming your order...</div>
+          <div style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#71717A'}}>This usually only takes a few seconds.</div>
+        </>
+      )}
+      {status === 'error' && (
+        <>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:20,fontWeight:700,color:'#18181B',marginBottom:10}}>We couldn't confirm that order automatically.</div>
+          <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#71717A',lineHeight:1.6}}>If you completed payment, don't worry — it likely still went through. Contact us at <a href={`mailto:${COMPANY.email}`} style={{color:'#16A34A'}}>{COMPANY.email}</a> and we'll confirm it for you.</p>
+        </>
+      )}
+      {status === 'ok' && order && (
+        <>
+          <div style={{fontSize:40,marginBottom:12}}>✓</div>
+          <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:24,fontWeight:700,color:'#18181B',marginBottom:8}}>Thanks for your order!</div>
+          <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#71717A',marginBottom:28}}>Order <b>{order.id}</b> — a confirmation has been sent to your email.</p>
+          <div style={{border:'1px solid #E4E4E7',borderRadius:12,padding:20,textAlign:'left'}}>
+            {items.map((it, i) => (
+              <div key={i} style={{display:'flex',justifyContent:'space-between',fontFamily:'Inter, sans-serif',fontSize:13,color:'#18181B',padding:'6px 0'}}>
+                <span>Qty {it.qty} × {it.oz ? (it.oz >= 16 ? `${it.oz/16}lb` : `${it.oz}oz`) : ''}</span>
+              </div>
+            ))}
+            <div style={{borderTop:'1px solid #E4E4E7',marginTop:8,paddingTop:8,display:'flex',justifyContent:'space-between',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:15,color:'#18181B'}}>
+              <span>Total</span><span>${(order.total_cents/100).toFixed(2)}</span>
+            </div>
+          </div>
+          <a href="#" style={{display:'inline-block',marginTop:28,fontFamily:'Inter, sans-serif',fontSize:13,color:'#16A34A',fontWeight:600}}>← Back to shop</a>
+        </>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -482,6 +550,7 @@ export default function App() {
   const [search, setSearch] = useState('')
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
+  const [checkingOut, setCheckingOut] = useState(false)
   const [showCount, setShowCount] = useState(24)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [page, setPage] = useState(getPageFromHash())
@@ -539,9 +608,32 @@ export default function App() {
     setCart(prev => {
       const ex = prev.find(i => i.cartId === cartId)
       if (ex) return prev.map(i => i.cartId===cartId ? {...i, qty:i.qty+1} : i)
-      return [...prev, { cartId, id: product.id, name: product.name, size: sizeLabel, price_cents: priceCents, qty: 1 }]
+      return [...prev, { cartId, id: product.id, name: product.name, size: sizeLabel, oz, price_cents: priceCents, qty: 1 }]
     })
     setCartOpen(true)
+  }
+
+  async function handleCheckout() {
+    if (cart.length === 0 || checkingOut) return
+    setCheckingOut(true)
+    try {
+      const items = cart.map(i => ({ product_id: i.id, qty: i.qty, oz: i.oz }))
+      const resp = await fetch(`${API}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      })
+      const data = await resp.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setCheckingOut(false)
+        alert('Something went wrong starting checkout. Please try again.')
+      }
+    } catch {
+      setCheckingOut(false)
+      alert('Something went wrong starting checkout. Please try again.')
+    }
   }
 
   if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',fontFamily:'Space Grotesk, sans-serif',fontSize:18,color:'#A1A1AA'}}>Loading Rise and Steep...</div>
@@ -569,6 +661,7 @@ export default function App() {
 
       {page === 'about' && <AboutPage/>}
       {page === 'contact' && <ContactPage/>}
+      {page === 'success' && <SuccessPage onOrderConfirmed={()=>setCart([])}/>}
 
       {page === 'home' && <>
         <section style={{maxWidth:1100,margin:'0 auto',padding:'56px 24px 48px',display:'flex',gap:40,alignItems:'center',flexWrap:'wrap'}}>
@@ -643,7 +736,7 @@ export default function App() {
               <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:11,fontWeight:700,letterSpacing:2,color:'#A1A1AA',marginBottom:16}}>ABOUT RISE AND STEEP</div>
               <h2 style={{fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:'clamp(26px,4vw,40px)',color:'#18181B',lineHeight:1.05,margin:0,letterSpacing:'-0.5px'}}>Every blend starts with a question: what do you actually need today?</h2>
             </div>
-            <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>Every blend is built around a specific goal, formulated with precise ratios instead of guesswork, and held to one standard: real ingredients, nothing added just to bulk out a bag. And if you already know what you are after, we carry hundreds of classic herbs and spices on their own too, sold straight and priced by the ounce. No wellness theater. Just what works.</p>
+            <p style={{flex:'1 1 300px',fontFamily:'Inter, sans-serif',fontSize:15,color:'#52525B',lineHeight:1.65,margin:0}}>Every blend is built around a specific goal, formulated with precise ratios instead of guesswork, and held to one standard: real ingredients, nothing added just to bulk out a bag. And if you already know what you're after, we carry hundreds of classic herbs and spices on their own too, sold straight and priced by the ounce. No wellness theater. Just what works.</p>
           </div>
         </div>
       </>}
@@ -651,7 +744,7 @@ export default function App() {
       <footer style={{borderTop:'1px solid #E4E4E7',padding:'32px 24px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:24}}>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            <img src="logo.png" alt="Rise and Steep" style={{height:22,width:"auto"}}/>
+            <img src="logo.png" alt="Rise and Steep" style={{height:22,width:'auto'}}/>
             <div style={{fontFamily:'Inter, sans-serif',fontSize:12,color:'#A1A1AA'}}>riseandsteep.com - Herbal tea for performance</div>
           </div>
           <div style={{display:'flex',gap:48,flexWrap:'wrap',fontFamily:'Inter, sans-serif',fontSize:13,color:'#52525B'}}>
@@ -676,6 +769,8 @@ export default function App() {
         <CartDrawer cart={cart} onClose={()=>setCartOpen(false)}
           onRemove={cartId=>setCart(prev=>prev.filter(i=>i.cartId!==cartId))}
           onQty={(cartId,d)=>setCart(prev=>prev.map(i=>i.cartId===cartId?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0))}
+          onCheckout={handleCheckout}
+          checkingOut={checkingOut}
         />
       </>}
 
