@@ -931,6 +931,76 @@ function AdminPage() {
   )
 }
 
+function ChatWidget() {
+  const [open, setOpen] = useState(false)
+  const [messages, setMessages] = useState([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const scrollRef = useRef(null)
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [messages, loading, open])
+
+  async function send(e) {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || loading) return
+    const newMessages = [...messages, { role: 'user', content: text }]
+    setMessages(newMessages)
+    setInput('')
+    setLoading(true)
+    try {
+      const r = await fetch(`${API}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages }),
+      })
+      const data = await r.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || "Sorry, something went wrong. Try emailing support@riseandsteep.com." }])
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, something went wrong. Try emailing support@riseandsteep.com." }])
+    }
+    setLoading(false)
+  }
+
+  return (
+    <>
+      <button onClick={()=>setOpen(o=>!o)} style={{position:'fixed',bottom:20,right:20,width:56,height:56,borderRadius:'50%',border:'none',background:'#18181B',color:'#fff',fontSize:24,cursor:'pointer',zIndex:80,boxShadow:'0 4px 16px rgba(0,0,0,0.25)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        {open ? '×' : '💬'}
+      </button>
+
+      {open && (
+        <div style={{position:'fixed',bottom:86,right:20,width:340,maxWidth:'calc(100vw - 40px)',height:460,maxHeight:'calc(100vh - 120px)',background:'#fff',borderRadius:16,boxShadow:'0 8px 32px rgba(0,0,0,0.25)',zIndex:80,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <div style={{background:'#18181B',color:'#fff',padding:'14px 16px',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:14}}>
+            Rise & Steep Support
+          </div>
+          <div ref={scrollRef} style={{flex:1,overflowY:'auto',padding:14,display:'flex',flexDirection:'column',gap:10}}>
+            {messages.length === 0 && (
+              <div style={{fontFamily:'Inter, sans-serif',fontSize:13,color:'#71717A',lineHeight:1.5}}>
+                Hi! Ask me about shipping, herbs, or check the status of an order (you'll need your order ID and the email used at checkout).
+              </div>
+            )}
+            {messages.map((m, i) => (
+              <div key={i} style={{alignSelf:m.role==='user'?'flex-end':'flex-start',maxWidth:'85%',background:m.role==='user'?'#18181B':'#F4F4F5',color:m.role==='user'?'#fff':'#18181B',padding:'8px 12px',borderRadius:12,fontFamily:'Inter, sans-serif',fontSize:13,lineHeight:1.5,whiteSpace:'pre-wrap'}}>
+                {m.content}
+              </div>
+            ))}
+            {loading && (
+              <div style={{alignSelf:'flex-start',background:'#F4F4F5',color:'#A1A1AA',padding:'8px 12px',borderRadius:12,fontFamily:'Inter, sans-serif',fontSize:13}}>...</div>
+            )}
+          </div>
+          <form onSubmit={send} style={{display:'flex',gap:8,padding:12,borderTop:'1px solid #E4E4E7'}}>
+            <input value={input} onChange={e=>setInput(e.target.value)} placeholder="Type a message..."
+              style={{flex:1,padding:'9px 12px',borderRadius:999,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:13,boxSizing:'border-box'}}/>
+            <button type="submit" disabled={loading || !input.trim()} style={{padding:'9px 16px',borderRadius:999,border:'none',background:'#18181B',color:'#fff',fontFamily:'Inter, sans-serif',fontSize:13,fontWeight:600,cursor:'pointer'}}>Send</button>
+          </form>
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function App() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -1192,6 +1262,8 @@ export default function App() {
       {showEmailPopup && page === 'home' && (
         <EmailPopup onClose={()=>setShowEmailPopup(false)}/>
       )}
+
+      <ChatWidget/>
     </div>
   )
 }
