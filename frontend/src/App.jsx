@@ -679,6 +679,17 @@ function SuccessPage({ onOrderConfirmed }) {
           setOrder(data)
           setStatus('ok')
           onOrderConfirmed()
+
+          const firedKey = `ga_purchase_fired_${data.id}`
+          if (!sessionStorage.getItem(firedKey) && typeof window.gtag === 'function') {
+            window.gtag('event', 'purchase', {
+              transaction_id: data.id,
+              value: (data.total_cents || 0) / 100,
+              shipping: (data.shipping_cents || 0) / 100,
+              currency: 'USD',
+            })
+            sessionStorage.setItem(firedKey, '1')
+          }
           return
         }
       } catch {}
