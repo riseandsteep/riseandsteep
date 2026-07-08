@@ -1,13 +1,16 @@
 import { preflight, error } from "./cors.js";
 import { getProducts, getProduct } from "./routes/products.js";
 import { getRooms } from "./routes/rooms.js";
-import { createCheckout, getOrder } from "./routes/orders.js";
+import { createCheckout, getOrder, getOrderBySession } from "./routes/orders.js";
 import { handleWebhook } from "./routes/webhook.js";
 import { generateBlend } from "./routes/blend.js";
+import { subscribe } from "./routes/subscribe.js";
+import { chatSupport } from "./routes/chat.js";
 import {
   adminListProducts, adminCreateProduct,
   adminUpdateProduct, adminDeleteProduct,
-  adminListOrders, adminUpdateOrder
+  adminListOrders, adminUpdateOrder,
+  adminListSubscribers
 } from "./routes/admin.js";
 
 export default {
@@ -50,9 +53,25 @@ export default {
       return generateBlend(request, env, origin);
     }
 
+    // POST /api/chat
+    if (path === "/api/chat" && method === "POST") {
+      return chatSupport(request, env, origin);
+    }
+
+    // POST /api/subscribe
+    if (path === "/api/subscribe" && method === "POST") {
+      return subscribe(request, env, origin);
+    }
+
     // POST /api/checkout
     if (path === "/api/checkout" && method === "POST") {
       return createCheckout(request, env, origin);
+    }
+
+    // GET /api/orders/by-session/:sessionId
+    const orderBySessionMatch = path.match(/^\/api\/orders\/by-session\/([^/]+)$/);
+    if (orderBySessionMatch && method === "GET") {
+      return getOrderBySession(orderBySessionMatch[1], env, origin);
     }
 
     // GET /api/orders/:id
@@ -79,6 +98,9 @@ export default {
 
     const adminOrderMatch = path.match(/^\/api\/admin\/orders\/([^/]+)$/);
     if (adminOrderMatch && method === "PUT") return adminUpdateOrder(adminOrderMatch[1], request, env, origin);
+
+    // GET /api/admin/subscribers
+    if (path === "/api/admin/subscribers" && method === "GET") return adminListSubscribers(request, env, origin);
 
     // 404
     return error("Not found", 404, origin);

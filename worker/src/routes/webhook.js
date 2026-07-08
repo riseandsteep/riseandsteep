@@ -1,13 +1,12 @@
 import { json, error } from "../cors.js";
 
-// POST /api/webhook  — Stripe webhook handler
+// POST /api/webhook — Stripe webhook handler
 export async function handleWebhook(request, env, origin) {
   const signature = request.headers.get("stripe-signature");
   if (!signature) return error("Missing stripe-signature", 400, origin);
 
   const body = await request.text();
 
-  // Verify Stripe signature
   let event;
   try {
     event = await verifyStripeSignature(body, signature, env.STRIPE_WEBHOOK_SECRET);
@@ -15,20 +14,28 @@ export async function handleWebhook(request, env, origin) {
     return error(`Webhook signature invalid: ${e.message}`, 400, origin);
   }
 
-  // Handle events
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
+
+    const email = session.customer_details?.email || session.customer_email || "";
+    const name  = session.customer_details?.name || session.shipping_details?.name || "";
+    const address = session.shipping_details?.address || session.customer_details?.address || null;
+
     try {
       await env.DB.prepare(
         `UPDATE orders
          SET status = 'paid',
              stripe_payment_id = ?,
              email = COALESCE(NULLIF(email,''), ?),
+             name = ?,
+             shipping_json = ?,
              updated_at = datetime('now')
          WHERE stripe_session_id = ?`
       ).bind(
         session.payment_intent || "",
-        session.customer_email || "",
+        email,
+        name,
+        address ? JSON.stringify(address) : null,
         session.id
       ).run();
     } catch (e) {
@@ -56,7 +63,6 @@ async function verifyStripeSignature(payload, header, secret) {
   const parts = Object.fromEntries(header.split(",").map(p => p.split("=")));
   const timestamp = parts["t"];
   const sig = parts["v1"];
-
   if (!timestamp || !sig) throw new Error("Malformed signature header");
 
   const signedPayload = `${timestamp}.${payload}`;
@@ -69,10 +75,8 @@ async function verifyStripeSignature(payload, header, secret) {
   );
   const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(signedPayload));
   const expected = Array.from(new Uint8Array(mac)).map(b => b.toString(16).padStart(2,"0")).join("");
-
   if (expected !== sig) throw new Error("Signature mismatch");
 
-  // Reject events older than 5 minutes
   const age = Math.floor(Date.now() / 1000) - parseInt(timestamp);
   if (age > 300) throw new Error("Webhook timestamp too old");
 

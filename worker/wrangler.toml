@@ -12,4 +12,4 @@ binding = "IMAGES"
 bucket_name = "rise-and-steep-images"
 
 [vars]
-FRONTEND_ORIGIN = "*"
+FRONTEND_ORIGIN = "https://riseandsteep.com"

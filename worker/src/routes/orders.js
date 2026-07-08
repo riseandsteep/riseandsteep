@@ -1,7 +1,34 @@
 import { json, error } from "../cors.js";
 
+const FREE_SHIPPING_THRESHOLD_CENTS = 4500; // $45
+
+// Weight-based shipping tiers, in cents. maxOz is the upper bound (inclusive) of each tier.
+const US_TIERS = [
+  { maxOz: 4,        cents: 595 },
+  { maxOz: 8,        cents: 795 },
+  { maxOz: 16,       cents: 995 },
+  { maxOz: 32,       cents: 1295 },
+  { maxOz: 48,       cents: 1595 },
+  { maxOz: Infinity, cents: 1995 },
+];
+
+const CA_TIERS = [
+  { maxOz: 8,        cents: 2495 },
+  { maxOz: 16,       cents: 3295 },
+  { maxOz: 32,       cents: 4495 },
+  { maxOz: 48,       cents: 5495 },
+  { maxOz: Infinity, cents: 6495 },
+];
+
+function rateForWeight(tiers, totalOz) {
+  for (const tier of tiers) {
+    if (totalOz <= tier.maxOz) return tier.cents;
+  }
+  return tiers[tiers.length - 1].cents;
+}
+
 // POST /api/checkout
-// Body: { items: [{ product_id, qty }], email }
+// Body: { items: [{ product_id, qty, oz }], email }
 export async function createCheckout(request, env, origin) {
   if (!env.STRIPE_SECRET_KEY) {
     return error("Stripe not configured", 500, origin);
@@ -19,46 +46,77 @@ export async function createCheckout(request, env, origin) {
     return error("items array is required", 400, origin);
   }
 
-  // Fetch products from D1 to validate prices (never trust client prices)
   const ids = items.map(i => i.product_id);
   const placeholders = ids.map(() => "?").join(",");
   let products;
   try {
     const rows = await env.DB.prepare(
-      `SELECT id, name, price_cents, in_stock FROM products WHERE id IN (${placeholders})`
+      `SELECT id, name, price_cents, weight_oz, in_stock FROM products WHERE id IN (${placeholders})`
     ).bind(...ids).all();
     products = rows.results || [];
   } catch (e) {
     return error(`DB error: ${e.message}`, 500, origin);
   }
 
-  // Build Stripe line items
   const lineItems = [];
+  let totalOz = 0;
   for (const item of items) {
     const product = products.find(p => p.id === item.product_id);
     if (!product) return error(`Product ${item.product_id} not found`, 400, origin);
     if (!product.in_stock) return error(`${product.name} is out of stock`, 400, origin);
 
+    const baseWeight = product.weight_oz || 2;
+    const oz = item.oz || baseWeight;
+    const qty = item.qty || 1;
+    const unitAmount = Math.round((product.price_cents / baseWeight) * oz);
+    const sizeLabel = oz >= 16 ? `${oz / 16}lb` : `${oz}oz`;
+
+    totalOz += oz * qty;
+
     lineItems.push({
       price_data: {
         currency: "usd",
-        product_data: { name: product.name },
-        unit_amount: product.price_cents,
+        product_data: { name: `${product.name} (${sizeLabel})` },
+        unit_amount: unitAmount,
       },
-      quantity: item.qty || 1,
+      quantity: qty,
     });
   }
 
-  const successUrl = `${env.FRONTEND_ORIGIN}/success?session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl  = `${env.FRONTEND_ORIGIN}/`;
+  const subtotal = lineItems.reduce((s, i) => s + i.price_data.unit_amount * i.quantity, 0);
 
-  // Create Stripe Checkout Session
+  const usFreeQualifies = subtotal >= FREE_SHIPPING_THRESHOLD_CENTS;
+  const usCents = usFreeQualifies ? 0 : rateForWeight(US_TIERS, totalOz);
+  const usLabel = usFreeQualifies ? "Free US Shipping" : "US Standard Shipping";
+  const caCents = rateForWeight(CA_TIERS, totalOz);
+
+  const successUrl = `${env.FRONTEND_ORIGIN}/?session_id={CHECKOUT_SESSION_ID}#success`;
+  const cancelUrl  = `${env.FRONTEND_ORIGIN}/#`;
+
   const stripeBody = new URLSearchParams({
     mode: "payment",
     success_url: successUrl,
     cancel_url: cancelUrl,
     "shipping_address_collection[allowed_countries][0]": "US",
     "shipping_address_collection[allowed_countries][1]": "CA",
+
+    "shipping_options[0][shipping_rate_data][type]": "fixed_amount",
+    "shipping_options[0][shipping_rate_data][fixed_amount][amount]": String(usCents),
+    "shipping_options[0][shipping_rate_data][fixed_amount][currency]": "usd",
+    "shipping_options[0][shipping_rate_data][display_name]": usLabel,
+    "shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]": "business_day",
+    "shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]": "3",
+    "shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]": "business_day",
+    "shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]": "7",
+
+    "shipping_options[1][shipping_rate_data][type]": "fixed_amount",
+    "shipping_options[1][shipping_rate_data][fixed_amount][amount]": String(caCents),
+    "shipping_options[1][shipping_rate_data][fixed_amount][currency]": "usd",
+    "shipping_options[1][shipping_rate_data][display_name]": "Canada Standard Shipping",
+    "shipping_options[1][shipping_rate_data][delivery_estimate][minimum][unit]": "business_day",
+    "shipping_options[1][shipping_rate_data][delivery_estimate][minimum][value]": "7",
+    "shipping_options[1][shipping_rate_data][delivery_estimate][maximum][unit]": "business_day",
+    "shipping_options[1][shipping_rate_data][delivery_estimate][maximum][value]": "14",
   });
 
   if (email) stripeBody.append("customer_email", email);
@@ -86,24 +144,22 @@ export async function createCheckout(request, env, origin) {
     return error(`Stripe error: ${e.message}`, 500, origin);
   }
 
-  // Store pending order in D1
   const orderId = `ORD-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
-  const subtotal = lineItems.reduce((s, i) => s + i.price_data.unit_amount * i.quantity, 0);
 
   try {
     await env.DB.prepare(
-      `INSERT INTO orders (id, stripe_session_id, status, email, items_json, subtotal_cents, total_cents)
-       VALUES (?, ?, 'pending', ?, ?, ?, ?)`
+      `INSERT INTO orders (id, stripe_session_id, status, email, items_json, subtotal_cents, shipping_cents, total_cents)
+       VALUES (?, ?, 'pending', ?, ?, ?, ?, ?)`
     ).bind(
       orderId,
       session.id,
       email || "",
       JSON.stringify(items),
       subtotal,
-      subtotal
+      usCents,
+      subtotal + usCents
     ).run();
   } catch (e) {
-    // Log but don't fail — Stripe session is created, order can be reconciled via webhook
     console.error("Failed to store order:", e.message);
   }
 
@@ -114,9 +170,24 @@ export async function createCheckout(request, env, origin) {
 export async function getOrder(orderId, env, origin) {
   try {
     const row = await env.DB.prepare(
-      `SELECT id, status, email, items_json, subtotal_cents, total_cents, created_at
+      `SELECT id, status, email, items_json, subtotal_cents, shipping_cents, total_cents, created_at
        FROM orders WHERE id = ?`
     ).bind(orderId).first();
+
+    if (!row) return error("Order not found", 404, origin);
+    return json(row, 200, origin);
+  } catch (e) {
+    return error(`DB error: ${e.message}`, 500, origin);
+  }
+}
+
+// GET /api/orders/by-session/:sessionId  (for order confirmation page, right after Stripe redirect)
+export async function getOrderBySession(sessionId, env, origin) {
+  try {
+    const row = await env.DB.prepare(
+      `SELECT id, status, email, items_json, subtotal_cents, shipping_cents, total_cents, created_at
+       FROM orders WHERE stripe_session_id = ?`
+    ).bind(sessionId).first();
 
     if (!row) return error("Order not found", 404, origin);
     return json(row, 200, origin);

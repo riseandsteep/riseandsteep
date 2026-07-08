@@ -173,3 +173,17 @@ export async function adminUpdateOrder(id, request, env, origin) {
     return error(e.message, 500, origin);
   }
 }
+
+// GET /api/admin/subscribers
+export async function adminListSubscribers(request, env, origin) {
+  if (!checkAuth(request, env)) return error("Unauthorized", 401, origin);
+
+  try {
+    const rows = await env.DB.prepare(
+      `SELECT id, email, source, created_at FROM subscribers ORDER BY created_at DESC`
+    ).all();
+    return json({ subscribers: rows.results || [] }, 200, origin);
+  } catch (e) {
+    return error(e.message, 500, origin);
+  }
+}
