@@ -128,9 +128,9 @@ function ProductImage({ product, room, height }) {
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   const hasImage = !!product.image_key && !imgError
   return (
-    <div style={{height,background:`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0,position:'relative',overflow:'hidden'}}>
+    <div style={{height,background:hasImage?'#fff':`linear-gradient(135deg, ${room.color}18, ${room.color}35)`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,flexShrink:0,position:'relative',overflow:'hidden'}}>
       {hasImage ? (
-        <img src={product.image_key} alt={product.name} onError={() => setImgError(true)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+        <img src={product.image_key} alt={product.name} onError={() => setImgError(true)} style={{width:'100%',height:'100%',objectFit:'contain',background:'#fff'}}/>
       ) : (
         <>
           <div style={{width:56,height:56,borderRadius:'50%',background:room.color+'22',border:`2px solid ${room.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Space Grotesk, sans-serif',fontWeight:700,fontSize:18,color:room.color}}>{initials}</div>
