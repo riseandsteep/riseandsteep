@@ -282,12 +282,12 @@ function EmailPopup({ onClose }) {
         <button onClick={dismiss} style={{position:'absolute',top:14,right:14,background:'none',border:'none',fontSize:18,color:'#A1A1AA',cursor:'pointer'}}>x</button>
         {status !== 'done' ? (
           <>
-            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B',marginBottom:8}}>Stay in the loop</div>
-            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B',lineHeight:1.6,marginBottom:22}}>Get first access to new blends, restocks, and the occasional herbalist tip. No spam, unsubscribe anytime.</p>
+            <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B',marginBottom:8}}>Get 10% off your first order</div>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B',lineHeight:1.6,marginBottom:22}}>Join the list for first access to new blends, restocks, and the occasional herbalist tip — plus a welcome discount code. No spam, unsubscribe anytime.</p>
             <form onSubmit={submit} style={{display:'flex',flexDirection:'column',gap:10}}>
               <input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"
                 style={{padding:'12px 14px',borderRadius:8,border:'1px solid #E4E4E7',fontFamily:'Inter, sans-serif',fontSize:14,boxSizing:'border-box'}}/>
-              <button type="submit" disabled={status==='loading'} style={{padding:12,borderRadius:8,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>{status==='loading'?'Joining...':'Join the list'}</button>
+              <button type="submit" disabled={status==='loading'} style={{padding:12,borderRadius:8,border:'none',background:'#18181B',color:'#fff',fontFamily:'Space Grotesk, sans-serif',fontSize:14,fontWeight:600,cursor:'pointer'}}>{status==='loading'?'Joining...':'Get my code'}</button>
             </form>
             {status==='error' && <div style={{color:'#DC2626',fontSize:12,marginTop:10,fontFamily:'Inter, sans-serif'}}>Something went wrong — please try again.</div>}
           </>
@@ -295,7 +295,8 @@ function EmailPopup({ onClose }) {
           <>
             <div style={{fontSize:36,marginBottom:10}}>✓</div>
             <div style={{fontFamily:'Space Grotesk, sans-serif',fontSize:20,fontWeight:700,color:'#18181B',marginBottom:8}}>You're on the list!</div>
-            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B'}}>We'll be in touch with new blends and restocks.</p>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:14,color:'#52525B',marginBottom:14}}>Use this code at checkout for 10% off your first order:</p>
+            <div style={{background:'#F4F4F5',border:'1.5px dashed #A1A1AA',borderRadius:8,padding:'12px 16px',fontFamily:'Space Grotesk, sans-serif',fontSize:18,fontWeight:700,letterSpacing:2,color:'#18181B'}}>WELCOME10</div>
           </>
         )}
       </div>

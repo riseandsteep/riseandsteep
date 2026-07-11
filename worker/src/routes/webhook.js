@@ -18,8 +18,9 @@ export async function handleWebhook(request, env, origin) {
     const session = event.data.object;
 
     const email = session.customer_details?.email || session.customer_email || "";
-    const name  = session.customer_details?.name || session.shipping_details?.name || "";
-    const address = session.shipping_details?.address || session.customer_details?.address || null;
+    const shippingDetails = session.collected_information?.shipping_details || session.shipping_details || null;
+    const name  = session.customer_details?.name || shippingDetails?.name || "";
+    const address = shippingDetails?.address || session.customer_details?.address || null;
 
     try {
       await env.DB.prepare(
