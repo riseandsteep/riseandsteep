@@ -144,11 +144,11 @@ function ProductImage({ product, room, height }) {
 function ProductCard({ product, onAdd, onOpen }) {
   const [added, setAdded] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
-  const price = (product.price_cents / 100).toFixed(2)
+  const price = (priceForSize(product, 1) / 100).toFixed(2)
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
   function handleAdd(e) {
     e.stopPropagation()
-    onAdd(product, 2, product.price_cents, '2oz')
+    onAdd(product, 1, priceForSize(product, 1), '1oz')
     setAdded(true); setTimeout(() => setAdded(false), 1800)
   }
   return (
@@ -173,7 +173,7 @@ function ProductCard({ product, onAdd, onOpen }) {
 }
 
 function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
-  const [selectedOz, setSelectedOz] = useState(2)
+  const [selectedOz, setSelectedOz] = useState(1)
   const [added, setAdded] = useState(false)
   const room = ROOMS.find(r => r.id === product.room_id) || ROOMS[0]
   const cat = product.tag ? product.tag.split(' · ')[0] : ''
@@ -234,7 +234,10 @@ function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
           </div>
 
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
-            <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B'}}>${(priceCents/100).toFixed(2)}</span>
+            <div>
+              <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B'}}>${(priceCents/100).toFixed(2)}</span>
+              <div style={{fontFamily:'Inter, sans-serif',fontSize:11,color:'#A1A1AA',marginTop:2}}>Makes ~{Math.round(selectedOz*10)}-{Math.round(selectedOz*15)} cups</div>
+            </div>
             <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:14,fontWeight:600,padding:'12px 28px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
           </div>
         </div>
