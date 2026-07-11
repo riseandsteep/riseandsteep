@@ -225,6 +225,14 @@ function ProductModal({ product, onClose, onAdd, cartTotalCents }) {
               : `Add $${(remainingCents/100).toFixed(2)} more to unlock free US shipping`}
           </div>
 
+          <div style={{display:'flex',justifyContent:'center',gap:10,flexWrap:'wrap',fontFamily:'Inter, sans-serif',fontSize:11,color:'#71717A',paddingTop:2}}>
+            <span>🔒 Secure checkout</span>
+            <span>·</span>
+            <span>📦 Ships in 1-3 business days</span>
+            <span>·</span>
+            <span>💚 Quality guaranteed</span>
+          </div>
+
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
             <span style={{fontFamily:'Space Grotesk, sans-serif',fontSize:22,fontWeight:700,color:'#18181B'}}>${(priceCents/100).toFixed(2)}</span>
             <button onClick={handleAdd} style={{fontFamily:'Inter, sans-serif',fontSize:14,fontWeight:600,padding:'12px 28px',borderRadius:999,border:'none',background:added?room.color:room.accent,color:'#fff',cursor:'pointer',transition:'background 0.2s'}}>{added?'Added!':'Add to cart'}</button>
